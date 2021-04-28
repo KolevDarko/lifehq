@@ -1,0 +1,35 @@
+{% for list_struct in project_lists %}
+  <div class="todo-list-small"
+       data-todo-item-userid="{{ my_user.id }}">
+    <div class="card-header todo-list-title back-header">{{ list_struct.title }}</div>
+    <div class="">
+      <table class="sortable">
+        <tbody>
+        {% for item in list_struct.todo %}
+          {% if item.personal_list_id %}
+            <tr class="added-row project-item-{{ item.id }}"
+                data-item-id="{{ item.id }}"
+                data-list-id="{{ list_struct.id }}"
+                data-saction="click->master-todo#copyItem">
+              <td class="item-title col-md-10">{{ item.title }}</td>
+              <td class="item-icon">Added</td>
+            </tr>
+          {% else %}
+            <tr class="review-list-row project-item-{{ item.id }}"
+                data-item-id="{{ item.id }}"
+                data-list-id="{{ list_struct.id }}"
+                data-saction="click->master-todo#copyItem">
+              <td class="item-title col-md-10">{{ item.title }}</td>
+              <td class="item-icon"><i
+                class="material-icons btn-transfer-todo bg-success">keyboard_arrow_right</i>
+              </td>
+            </tr>
+          {% endif %}
+        {% empty %}
+          <i>Empty</i>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endfor %}

@@ -1,0 +1,228 @@
+<div class="container-fluid" id="idPLanWeek" data-controller="master-todo-plan-week" data-target="master-nav.childContainer">
+  {% csrf_token %}
+  <div class="row plan-row">
+    <div class="col-md-3">
+      <div class="card">
+        <div class="card-header card-header-tabs card-header-primary text-center">
+          <div class="nav-tabs-navigation">
+            <div class="nav-tabs-wrapper">
+              <div>
+
+                <select class="form-control"
+                        data-target="master-todo-plan-week.projectSelector" style="width: 90%">
+                  {% for project in all_projects %}
+                    {% if project == latest_project %}
+                      <option value="{{ project.id }}" selected="selected">{{ project.name }}</option>
+                    {% else %}
+                      <option value="{{ project.id }}">{{ project.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="intro-step-2 card-body viewer showEntry" data-target="master-todo-plan-week.reviewContainer">
+          {% for list_struct in project_lists %}
+            <div class="todo-list-small"
+                 data-todo-item-userid="{{ my_user.id }}">
+              <div class="card-header todo-list-title back-header">{{ list_struct.title }}</div>
+              <div class="">
+                <table class="sortable centered todo-project">
+                  <tbody>
+                  {% for item in list_struct.todo %}
+                    {% if item.day_list_id or item.due_date %}
+                      <tr class="added-row project-item-{{ item.id }}"
+                          data-item-id="{{ item.id }}"
+                          data-list-id="{{ list_struct.id|default:-1 }}">
+                        <td class="item-title col-md-10">{{ item.title }}</td>
+                        <td class="item-icon">Added</td>
+                      </tr>
+                    {% else %}
+                      <tr class="review-list-row project-item-{{ item.id }}"
+                          data-item-id="{{ item.id }}"
+                          data-list-id="{{ list_struct.id }}"
+                          data-saction="click->master-todo-plan-week#copyItem">
+                        <td class="item-title col-md-10">{{ item.title }}</td>
+                        <td class="item-icon"><i
+                          class="material-icons btn-transfer-todo bg-success">keyboard_arrow_right</i>
+                        </td>
+                      </tr>
+                    {% endif %}
+                  {% empty %}
+                    <i>Empty</i>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          {% empty %}
+            Your project specific tasks will appear here.
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9">
+      <div class="alert alert-info-mine hidden">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <i class="material-icons">close</i>
+        </button>
+        <span>Every day at midnight your planned tasks below get transferred to the daily master list</span>
+      </div>
+      <div class="scrollable-container week-planner intro-step-1">
+        {% for list_struct in days_structs %}
+          <div class="fixed-card card todo-list-flat day-card {% if forloop.counter == 1 %}active{% endif %}"
+               data-list-date="{{ list_struct.isodate }}" data-controller="master-todo-item"
+               data-master-todo-item-page-type="plan" data-master-todo-item-list-type="day"
+               data-master-todo-item-today-date="{{ today_date|date:'SHORT_DATE_FORMAT' }}"
+               data-target="master-todo-item.listContainer">
+
+            <div class="card-header todo-list-title">{{ list_struct.title }}  <span class="normal-text">({{ list_struct.human_date }})</span>
+              <i title="Copy project items here" class="fas fa-bullseye fa-action-button  {% if forloop.counter == 1 %} intro-step-3 {% endif %}" data-saction="click->master-todo-plan-week#selectDay"></i>
+            </div>
+
+            <div class="card-body">
+              <ul class="sortable" data-list-date="{{ list_struct.isodate }}">
+                {% for item in list_struct.todo %}
+                  <li class="item-table-row item-{{ item.id }}" data-item-id="{{ item.id }}"
+                      data-list-date="{{ list_struct.isodate }}" data-item-index="{{ item.day_list_order }}"
+                      data-project-id="{{ item.project_id }}" data-project-list-id="{{ item.project_list_id }}"
+                      data-due-date="{{ item.due_date|date:'SHORT_DATE_FORMAT' }}">
+                    <div>
+                      <span class="item-title">{{ item.title }}</span> {% if item.project_name %}
+                      <span class="badge badge-warning"> {{ item.project_name }}</span> {% endif %}
+                    </div>
+
+                  <div class="item-actions">
+                      <span class="clickable action-play text-danger" data-saction="click->master-todo-item#deletePlanItem"><i class="fas fa-times"></i></span>
+                      <span class="clickable" data-saction="click->master-todo-item#itemEdit">
+                        <i class="fas fa-edit"></i>
+                      </span>
+                    </div>
+
+                  </li>
+                {% endfor %}
+              </ul>
+              <div class="hidden item-form-container row"
+                   data-target="master-todo-item.todoItemForm">
+                <div class="item-form">
+                  <input type="hidden" value="{{ list_struct.isodate }}"
+                         data-target="master-todo-item.listId">
+                  <input type="text" class="form-control item-input"
+                         placeholder="I need to ..."
+                         data-target="master-todo-item.itemTitle">
+                  <button class="btn btn-success btn-sm item-add-button"
+                          data-saction="master-todo-item#createPlanItem">Add
+                  </button>
+                  <button class="btn btn-outline-success btn-sm"
+                          data-saction="master-todo-item#toggleNewItem">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-12 add-todo-item {% if forloop.counter == 1 %} intro-step-4-1 {% endif %}">
+                <button class="btn btn-success btn-round btn-sm"
+                        data-saction="master-todo-item#toggleNewItem">
+                  <i class="material-icons">add</i> Add todo
+                </button>
+              </div>
+            </div>
+            <div class="modal fade edit-modal" data-target="master-todo-item.itemEditModal">
+              <div class="modal-dialog modal-item-edit" role="document">
+                <div class="modal-content">
+                  <div class="card card-signup card-plain">
+                    <div class="modal-header">
+                      <div class="card-header card-header-primary text-center">
+                        <h4 class="card-title">Edit Item</h4>
+                      </div>
+                    </div>
+                    <div class="modal-body">
+                      <div class="card-body">
+                        <div class="form-group has-default">
+                          <div class="input-group">
+                            <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            Title
+                          </span>
+                            </div>
+                            <input data-target="master-todo-item.itemEditTitle" type="text" name="itemTitle"
+                                   class="form-control"
+                                   value="">
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <div class="input-group">
+                            <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                              Project
+                                            </span>
+                            </div>
+                            <select class="form-control col-3" data-saction="change->master-todo-item#changeItemProject"
+                                    data-target="master-todo-item.itemEditSelectProject">
+                              <option value="0">None</option>
+                              {% for project in my_user.projects.all %}
+                                <option value="{{ project.id }}">{{ project.name }}</option>
+                              {% endfor %}
+                            </select>
+                            <select class="form-control col-3" data-target="master-todo-item.itemEditSelectTask">
+                              <option value="0">None</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="form-group">
+                          <div class="input-group">
+                            <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                              Scheduled for:
+                                            </span>
+                            </div>
+                            <input type="text" data-target="master-todo-item.itemDueDate"
+                            class="form-control col-2 due-datepicker">
+                            <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                                    data-saction="master-todo-item#showDatepicker">
+                              <i class="material-icons">calendar_today</i>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="form-group has-default">
+                          <div class="input-group">
+                          <span class="input-group-text">
+                            Description
+                          </span>
+                            <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                                    data-saction="master-todo-item#showEditDescription">
+                              <i class="material-icons">edit</i>
+                            </button>
+                          </div>
+                          <div class="input-group">
+                            <textarea data-target="master-todo-item.itemEditDescription" type="text"
+                                      name="itemDescription"
+                                      class="form-control"
+                                      rows="10"></textarea>
+                            <pre class="description-show" data-target="master-todo-item.itemDescriptionShow"></pre>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                        Cancel
+                      </button>
+                      <button class="btn btn-primary"
+                              data-saction="master-todo-item#saveEditItem">Save
+                      </button>
+                      <button type="button" class="btn btn-danger float-right"
+                      data-saction="master-todo-item#deleteModalItem">
+                       Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>

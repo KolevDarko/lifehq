@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'journal-entry' %}">Journal</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Journal Templates</li>
+        </ol>
+    </nav>
+    <div class="main-panel">
+        <div class="header-templates text-center">Journal Templates</div>
+        <div class="content intro-step-1" data-controller="journal-template">
+            <ul class="nav nav-pills nav-pills-orange justify-content-center intro-step-2">
+                <li class="nav-item"><a class="nav-link active" href="#" data-toggle="tab"
+                                        data-saction="journal-template#showYear">Year</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" data-toggle="tab"
+                                        data-saction="click->journal-template#showMonth">Month</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" data-toggle="tab"
+                                        data-saction="click->journal-template#showWeek">Week</a></li>
+                <li class="nav-item"><a class="nav-link" data-saction="click->journal-template#showDay" href="#"
+                                        data-toggle="tab">Day</a></li>
+            </ul>
+            <div class="hidden" data-target="journal-template.yearContent">
+                {{ templates.3 | safe }}
+            </div>
+            <div class="hidden" data-target="journal-template.monthContent">
+                {{ templates.2 | safe }}
+            </div>
+            <div class="hidden" data-target="journal-template.weekContent">
+                {{ templates.1 | safe }}
+            </div>
+            <div class="hidden" data-target="journal-template.dayContent">
+                {{ templates.0 | safe }}
+            </div>
+            <form class="ays-warning">
+            {% csrf_token %}
+            <div class="row intro-step-3 note-editor-container">
+              <input type="hidden" id="hiddenTemplateContent" value="{{ templates.3 }}" data-target="journal-template.editorHiddenInput">
+              <trix-editor class="trix-content" input="hiddenTemplateContent" data-target="journal-template.journalEditor" ></trix-editor>
+
+              </div>
+            </form>
+            <div class="row">
+                <div class="col-md-3">
+                    <button data-journal-id="{{ journal.id }}" data-saction="journal-template#saveTemplate"
+                            class="btn btn-primary">Save Changes
+                    </button>
+                </div>
+                <div class="save-status col-md-2 hidden" data-target="journal-template.loader">
+                    <img src="{% static 'img/preloader.gif' %}" class="preloader">
+                </div>
+                <div class="save-status col-md-2 hidden" data-target="journal-template.success">
+                    <i class="material-icons">check_circle</i>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block jsinit %}
+    <script src="{% static 'js/plugins/jquery.are-you-sure.js' %}"></script>
+{% endblock %}

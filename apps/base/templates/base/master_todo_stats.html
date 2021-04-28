@@ -1,0 +1,202 @@
+{% load my_template_tags %}
+
+<div class="row justify-content-center active" id="linkStats">
+  <div data-controller="work-stats" class="stats-card--container col-md-12 card">
+    <div class="card-header">
+      <div>Work Statistics</div>
+    </div>
+    <div class="card-body stats-card">
+
+      <div class="row">
+        <div class="col-md-3">
+          <label class="mr-1 col-form-label">Project:</label>
+          <select class="inline-select" data-target="work-stats.filterProjectSelect">
+            <option value="0">Personal Tasks</option>
+            {% for project in user_projects %}
+              {% if project == active_project %}
+                <option selected value="{{ project.id }}">{{ project.name }}</option>
+              {% else %}
+                <option value="{{ project.id }}">{{ project.name }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="display-track-target col-md-3 horizontal-holder">
+          <span class="mx-2">Target:</span>
+          <span class="mr-2 text-primary"
+                data-target="work-stats.timeValShow">{{ active_project.time_target_duration|default_if_none:"" }} h /</span>
+          <span class="text-primary" data-target="work-stats.timeNameShow">{{ project_time_target_type }}</span>
+          <button class="btn btn-primary btn-fab btn-fab-mini btn-round" data-saction="work-stats#editTimeTarget">
+            <i class="material-icons">edit</i>
+          </button>
+        </div>
+        <div class="edit-track-target hidden col-md-3 horizontal-holder">
+          <span class="mx-2">Target:</span>
+          <input type="text" value="{{ active_project.time_target_duration }}" data-target="work-stats.timeVal"
+                 class="text-primary form-control inline-input inline-input-num"> h /
+          <select class="inline-select" value="{{ project_time_target_val }}" data-target="work-stats.timeName">
+            {% for target_option in all_target_options %}
+              <option value="{{ target_option.0 }}" {% if target_option.0 == project_time_target_val %}
+                      selected {% endif %}>{{ target_option.1 }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary btn-fab btn-fab-mini btn-round" data-saction="work-stats#saveTimeTarget">
+            <i class="material-icons">save</i>
+          </button>
+        </div>
+        <div class="col-md-4 mt-1">
+          <span class="mx-2">Worked:</span>
+          <span class="mr-2 text-primary">{{ project_worked_total }} /</span>
+          <span class="text-primary">this {{ project_time_target_type }}</span>
+        </div>
+      </div>
+
+      <div class="row text-danger" data-target="work-stats.errorBox"></div>
+      <div class="row">
+        <table class="table stats-table">
+          <thead>
+          <tr>
+            <th class="task-title">Task</th>
+            {% for day in week_days %}
+              <th>{{ day }}</th>
+            {% endfor %}
+          </tr>
+          </thead>
+          <tbody>
+          {% for track_obj in tracks_grouped %}
+            <tr data-item-id="{{ track_obj.task.id }}">
+              <td class="task-title">
+                {{ track_obj.task.title }}
+              </td>
+              {% for day_track in track_obj.full_tracks_list %}
+                  <td class="task-time {% if day_track.minutes_worked > 0 %} task-time-full {% endif %}" data-saction="click->work-stats#showEditTrackModal" data-track-minutes="{{ day_track.minutes_worked }}" data-track-date="{{ day_track.track_date|date:"m-d-Y" }}">
+                    {{ day_track.minutes_worked|duration_format }}
+                  </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal fade" tabindex="-1" id="trackEditModal">
+        <div class="modal-dialog modal-item-edit" role="document">
+          <div class="modal-content">
+            <div class="card card-signup card-plain">
+              <div class="modal-header">
+                <div class="card-header card-header-primary text-center">
+                  <h4 class="card-title">Edit worked time</h4>
+                </div>
+              </div>
+              <div class="modal-body">
+                <div class="card-body">
+                  <div class="track-edit-info"><span class="track-label">Task:</span> <span data-target="work-stats.trackEditTitle"></span></div>
+                  <div class="row">
+                    <div class="col-md-3">
+                      <div><span class="track-label">Date: </span><span data-target="work-stats.trackEditDate"></span></div>
+                    </div>
+                    <div class="col-md-4">
+                      <div>
+                      <span class="track-label">Duration:</span>
+                      <input type="text" value="0"
+                             data-target="work-stats.trackEditHours"
+                             class="text-primary form-control inline-input inline-input-num">h
+
+                        <input type="text" value="0"
+                             data-target="work-stats.trackEditMinutes"
+                             class="text-primary form-control inline-input inline-input-num">min
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                  Cancel
+                </button>
+                <button class="btn btn-primary"
+                        data-saction="work-stats#saveEditTrack">Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-success btn-round btn-sm" data-saction="work-stats#showManualAddPopup">
+        <i class="material-icons">add</i> Manual Add
+      </button>
+      <div class="modal fade edit-modal" tabindex="-1" id="manualAddModal">
+        <div class="modal-dialog modal-item-edit" role="document">
+          <div class="modal-content">
+            <div class="card card-signup card-plain">
+              <div class="modal-header">
+                <div class="card-header card-header-primary text-center">
+                  <h4 class="card-title">Manual add worked time</h4>
+                </div>
+              </div>
+              <div class="modal-body">
+                <div class="card-body">
+                  <div class="form-group">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                              Project
+                                            </span>
+                      </div>
+                      <select class="selectpicker" data-style="btn btn-outline-primary"
+                              data-saction="change->work-stats#changeManualAddProject"
+                              data-target="work-stats.manAddSelectProject" value="{{ active_project.id }}">
+                        <option value="0">Personal Tasks</option>
+                        {% for project in user_projects %}
+                          {% if project == active_project %}
+                          <option value="{{ project.id }}" selected>{{ project.name }}</option>
+                          {% else %}
+                          <option value="{{ project.id }}">{{ project.name }}</option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                      <div class="inline-block mt-3">-></div>
+                      <select class="selectpicker" data-style="btn btn-outline-primary"
+                              data-target="work-stats.manAddSelectTaskList" data-saction="change->work-stats#changeItemList">
+                        <option value="0">None</option>
+                        {% for task_list in active_project.todo_lists.all %}
+                          <option value="{{ task_list.id }}">{{ task_list.title }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <ul class="tasks-picker" data-target="work-stats.tasksContainer">
+                    <li>Pick task list to see the tasks here</li>
+                  </ul>
+
+                  <div class="row manual-add-inputs">
+                    <div class="col-md-4">
+                      <span class="manual-add-label">Date:</span>
+                      <input type="text" data-target="work-stats.manualDay" class="inline-input form-control datepicker text-center">
+                    </div>
+                    <div class="col-md-4">
+                      <span class="manual-add-label">Duration:</span>
+                      <input type="text" value="0"
+                             data-target="work-stats.manualHours"
+                             class="text-primary form-control inline-input inline-input-num mr-2">h
+                      <input type="text" value="0"
+                             data-target="work-stats.manualMinutes"
+                             class="text-primary form-control inline-input inline-input-num">min
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                  Cancel
+                </button>
+                <button class="btn btn-primary"
+                        data-saction="work-stats#saveManualAdd">Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

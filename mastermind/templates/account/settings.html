@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <h3 class="top-level__title"></h3>
+    <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Account Settings</li>
+        </ol>
+    </nav>
+    <div class="main-panel">
+        <div class="content">
+            <div class="row section-header">
+                <div class="col-md-12 text-center header-underline">
+                    <h2>Account</h2>
+                    <ul class="nav nav-pills nav-pills-primary" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" role="tablist">
+                                Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'account_password' %}" role="tablist"
+                               aria-expanded="false">
+                                Password
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-12">
+                <a class="btn btn-danger float-right" href="{% url 'account_delete' %}"> Delete Account </a>
+              </div>
+            </div>
+
+            <div class="row settings-section justify-content-center">
+                <div class="card col-md-10">
+                    <div class="card-header card-header-text card-header-info">
+                        <div class="card-text">
+                            <h4 class="card-title">Personal Info</h4>
+                        </div>
+                    </div>
+                    <form method="post" action="{% url 'account_settings' %}">
+                        <div class="card-body">
+                            {% csrf_token %}
+                            {% if messages %}
+                                <ul class="messages">
+                                    {% for message in messages %}
+                                        <li{% if message.tags %}
+                                            class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label">Email</label>
+                                <div class="col-sm-8">
+                                    <div class="form-group bmd-form-group">
+                                        <input type="text" name="email" class="form-control"
+                                               value="{{ form.email.value }}">
+                                    </div>
+                                    {{ form.email.errors }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <input type="submit" class="btn btn-fill btn-primary" value="Update">
+                        </div>
+                    </form>
+                </div>
+            </div>
+          <div data-controller="settings">
+            <div class="row settings-section justify-content-center" >
+                <div class="card col-md-10">
+                    <div class="card-header card-header-text card-header-info">
+                        <div class="card-text">
+                            <h4 class="card-title">Reminders</h4>
+                        </div>
+                    </div>
+                    <div data-target="settings.remindersUpdated">
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                                <label class="col-sm-3 col-form-label">Your UTC time offset:</label>
+                                <div class="col-sm-4">
+                                    <select name="timezone" data-live-search="true" class="selectpicker"
+                                            data-style="btn btn-outline-primary" data-target="settings.utcOffset">
+                                        {% for offset in utc_offset_list %}
+                                            {% if offset.0 == user_offset %}
+                                                <option value="{{ offset.0 }}"
+                                                        selected="selected">{{ offset.1 }}</option>
+                                            {% else %}
+                                                <option value="{{ offset.0 }}">{{ offset.1 }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                        </div>
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label">Morning reminder:</label>
+                            <div class="col-sm-3">
+                                <div class="form-group bmd-form-group">
+                                    <input type="text" data-target="settings.morning" class="form-control datepicker text-center"
+                                        value="{{ morning_reminder }}">
+                                </div>
+                            </div>
+                            <div class="togglebutton col-sm-4">
+                                {% if morning_enabled %}
+                                    <label>
+                                        <input type="checkbox"
+                                               data-saction="settings#morningToggle" data-target="settings.morningEnabled"
+                                             checked>
+                                        <span class="toggle"></span>
+                                    </label>
+                                    <label data-target="settings.morningInfo">
+                                        On
+                                    </label>
+                                {% else %}
+                                    <label>
+                                        <input type="checkbox"
+                                               data-saction="settings#morningToggle" data-target="settings.morningEnabled">
+                                        <span class="toggle"></span>
+                                    </label>
+                                    <label data-target="settings.morningInfo">
+                                        Off
+                                    </label>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label">Midday reminder:</label>
+                            <div class="col-sm-3">
+                                <div class="form-group bmd-form-group">
+                                    <input type="text" data-target="settings.midday" class="form-control datepicker text-center"
+                                        value="{{ midday_reminder }}">
+                                </div>
+                            </div>
+                            <div class="togglebutton col-sm-4">
+                                {% if midday_enabled %}
+                                    <label>
+                                        <input type="checkbox"
+                                               data-saction="settings#middayToggle" data-target="settings.middayEnabled"
+                                             checked>
+                                        <span class="toggle"></span>
+                                    </label>
+                                    <label data-target="settings.middayInfo">
+                                        On
+                                    </label>
+                                {% else %}
+                                    <label>
+                                        <input type="checkbox"
+                                               data-saction="settings#middayToggle" data-target="settings.middayEnabled">
+                                        <span class="toggle"></span>
+                                    </label>
+                                    <label data-target="settings.middayInfo">
+                                        Off
+                                    </label>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="col-sm-3 col-form-label">Evening reminder:</label>
+                            <div class="col-sm-3">
+                                <div class="form-group bmd-form-group">
+                                    <input type="text" data-target="settings.evening" class="form-control datepicker text-center"
+                                       value="{{ evening_reminder }}">
+                                </div>
+                            </div>
+                            <div class="togglebutton col-sm-4">
+                                {% if evening_enabled %}
+                                    <label>
+                                        <input type="checkbox"
+                                               data-saction="settings#eveningToggle" data-target="settings.eveningEnabled"
+                                             checked>
+                                        <span class="toggle"></span>
+                                    </label>
+                                    <label data-target="settings.eveningInfo">
+                                        On
+                                    </label>
+                                {% else %}
+                                    <label>
+                                        <input type="checkbox"
+                                               data-saction="settings#eveningToggle" data-target="settings.eveningEnabled">
+                                        <span class="toggle"></span>
+                                    </label>
+                                    <label data-target="settings.eveningInfo">
+                                        Off
+                                    </label>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <input type="submit" data-saction="settings#saveReminders" class="btn btn-fill btn-primary" value="Update">
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+{% endblock %}

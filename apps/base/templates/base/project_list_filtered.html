@@ -1,0 +1,19 @@
+{% for project in projects %}
+    <div class="col-md-3">
+        <div class="card main-card project-card">
+            <a href="{% url 'project_view' project.id %}">
+                <div class="card-body">
+                    <div class="card-title">{{ project.name|slice:"30" }}...</div>
+                    <div class="card-description">
+                        {{ project.description }}
+                    </div>
+                    <div class="project-tags">
+                        {% for tag in project.project_tags.all %}
+                            <span class="badge badge-warning">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+{% endfor %}

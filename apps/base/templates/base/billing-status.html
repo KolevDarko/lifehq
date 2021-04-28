@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+  <h3 class="top-level__title"></h3>
+  <nav aria-label="breadcrumb" role="navigation">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Billing</li>
+    </ol>
+  </nav>
+  <div class="main-panel">
+    <div class="content">
+      {% if profile.plan_end_time %}
+        <div class="row">
+          <div class="col-md-6 ml-auto mr-auto text-center">
+            <h2 class="title">Your subscription is canceled, you are no longer charged.</h2>
+            <h3>Cancellation effective date at: {{ profile.plan_end_time|date:"D d M Y" }}</h3>
+          </div>
+        </div>
+      {% else %}
+        <div class="row">
+          <div class="col-md-6 ml-auto mr-auto text-center">
+            <h2 class="title">Current plan: {{ profile.plan_name }}.</h2>
+            <h3>Next billing at: {{ profile.next_bill_date|date:"D d M Y" }}</h3>
+          </div>
+        </div>
+        <h3 class="mt-4">Update or cancel your subscription</h3>
+        <div class="row payment-buttons mt-3">
+          <div class="col-md-2">
+            <a href="#" class="paddle_button btn btn-success update" data-override="{{ profile.update_url }}">Update</a>
+          </div>
+          <div class="col-md-2">
+            <a href="#" class="paddle_button btn btn-error cancel" data-override="{{ profile.cancel_url }}">Cancel</a>
+          </div>
+        </div>
+      {% endif %}
+      <h3>Receipts</h3>
+      <div class="row">
+        <div class="col-md-6">
+          <table class="table">
+            <thead>
+            <tr>
+              <th>Billing Date</th>
+              <th>Link</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for receipt in receipts %}
+              <tr>
+                <td>{{ receipt.event_date|date:"D d M Y" }}</td>
+                <td><a href="{{ receipt.receipt_url }}" target="_blank">Receipt Link</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block jsinit %}
+  <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+  <script type="text/javascript">
+    Paddle.Setup({vendor: 39342});
+  </script>
+{% endblock %}

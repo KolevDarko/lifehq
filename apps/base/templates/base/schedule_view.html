@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <nav aria-label="breadcrumb" role="navigation">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Schedule</li>
+        </ol>
+    </nav>
+    <div class="main-panel">
+        <div class="content">
+            <div class="row section-header">
+                {% csrf_token %}
+                <div class="col-md-12 text-center header-underline">
+                    <h2>Schedule</h2>
+                </div>
+                <div class="row" data-controller="project-schedule" data-project-schedule-projid="{{ project.id }}">
+                    <div class="col-md-12">
+                                                                  <a id="formAnchor">&nbsp;</a>
+  <div class="ml-auto mr-auto">
+                            <div class="card card-calendar">
+                                <div class="card-header card-header-success card-header-icon">
+                                    <a href="#" data-saction="click->project-schedule#showCreateForm">
+                                        <div class="btn btn-round btn-success action-button">
+                                            <i class="material-icons">add</i> New event
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row hidden" data-target="project-schedule.eventForm">
+                                        <div class="col-md-6 offset-md-3">
+                                            <div class="card card-form">
+                                                <div class="card-header card-header-icon">
+                                                    <div class="card-title" data-target="project-schedule.formTitle">New Event</div>
+                                                </div>
+                                                <div class="card-body">
+                                                        <div class="row">
+                                                            <label class="col-md-3 col-form-label">Title</label>
+                                                            <div class="col-md-8">
+                                                                <div class="form-group has-default">
+                                                                    <input type="text" class="form-control"
+                                                                           data-target="project-schedule.title">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <label class="col-md-3 col-form-label">Start</label>
+                                                            <div class="col-md-3">
+                                                                <input type="text"
+                                                                       class="form-control datepicker text-center"
+                                                                       data-target="project-schedule.startDate">
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <input type="text"
+                                                                       data-target="project-schedule.startTime"
+                                                                       class="text-center form-control timepicker">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="togglebutton col-md-6">
+                                                                <label>
+                                                                    <span class="col-form-label">Toggle Event End</span>
+                                                                    <input type="checkbox"
+                                                                           data-saction="project-schedule#toggleEnd"
+                                                                    data-target="project-schedule.toggleEndBox">
+                                                                    <span class="toggle"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row hidden" data-target="project-schedule.eventEnd">
+                                                            <label class="col-md-3 col-form-label">End</label>
+                                                            <div class="col-md-3">
+                                                                <input type="text"
+                                                                       class="form-control datepicker text-center"
+                                                                       data-target="project-schedule.endDate">
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                <input type="text"
+                                                                       class="form-control timepicker text-center"
+                                                                       data-target="project-schedule.endTime">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <label class="col-md-3 col-form-label">Description</label>
+                                                            <div class="col-md-8">
+                                                                <div class="form-group">
+                                                                    <textarea class="form-control"
+                                                                              data-target="project-schedule.description"></textarea>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                </div>
+                                                <div class="card-footer ">
+                                                    <div class="col-md-9">
+                                                        <button class="btn btn-success btn-sm" data-target="project-schedule.saveButton"
+                                                                data-saction="project-schedule#createEvent">
+                                                            Create event
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm"
+                                                                data-saction="click->project-schedule#toggleEventForm">
+                                                            Cancel
+                                                        </button>
+                                                        <button data-target="project-schedule.deleteButton" class="btn btn-danger btn-sm hidden"
+                                                                data-saction="click->project-schedule#deleteEvent">
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="fullProjectCalendar"></div>
+                                </div>
+                            </div>
+                            <a id="dayDetails">&nbsp;</a>
+                            <div data-target="project-schedule.eventsDetails">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block jsinit %}
+    <script src="{% static 'js/plugins/fullcalendar.min.js' %}"></script>
+{% endblock %}

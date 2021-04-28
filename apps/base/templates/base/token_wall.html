@@ -1,0 +1,67 @@
+{% extends 'base_login.html' %}
+{% load static %}
+{% block content %}
+    <div class="off-canvas-sidebar register-page">
+        <div class="wrapper wrapper-full-page">
+            <div class="page-header register-page header-filter" filter-color="black"
+                 style="background-image: url('../../static/img/register.jpg'); background-size: cover; background-position: top center;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-10 ml-auto mr-auto">
+                            <div class="card card-signup">
+                                <img src="{% static 'img/logo-icon.png' %}" width="150px" class="m-auto">
+                                <h2 class="card-title text-center">Welcome to LifeHQ</h2>
+                                <h3 class="card-title text-center">Enter your code for access to the private Beta</h3>
+                                {% if invalid_code %}
+                                    <div class="text-center text-danger">Invalid code. Sign up here to get one: <a href="https://lifehqapp.com">https://lifehqapp.com</a></div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-5 mx-auto">
+                                            <form class="form" method="post" action="">
+                                                {% csrf_token %}
+                                                <div class="form-group has-default">
+                                                    <div class="input-group">
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                              Private Code
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" name="token" class="form-control"
+                                                               placeholder="Code here...">
+                                                    </div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <input type="submit" class="btn btn-primary btn-round mt-4"
+                                                           value="Activate">
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer class="footer">
+                    <div class="container">
+                        <nav class="pull-left">
+                            <ul>
+                                <li>
+                                </li>
+                            </ul>
+                        </nav>
+                        <div class="copyright pull-right">
+                            &copy;
+                            <script>
+                                document.write(new Date().getFullYear())
+                            </script>
+                            , made with <i class="material-icons">favorite</i> by
+                            <a href="#" target="_blank">Fit Technologies</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+{% endblock %}

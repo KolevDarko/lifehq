@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Projects</li>
+{% endblock %}
+{% block content %}
+
+  <div class="main-panel" data-controller="project-list">
+    <div class="main-section">
+      <div class="row section-header">
+        <div class="col-md-12 text-center header-underline position-relative">
+          <h2>Projects</h2>
+          <div class="dropdown header-btn__button">
+            <select data-live-search="true" class="selectpicker"
+                    data-saction="change->project-list#tagFilter">
+              <option value="all" selected="selected">All</option>
+              {% for tag in tags %}
+                <option value="{{ tag }}">{{ tag }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center">
+        <div class="col-md-12">
+          <div class="card card-container">
+            <div class="card-header card-header-success card-header-icon">
+              <a href="#" data-saction="project-list#toggleForm">
+                <div class="btn btn-round btn-success action-button">
+                  <i class="material-icons">add</i> Add
+                </div>
+              </a>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6 offset-md-3 hidden home-new-form"
+                     data-target="project-list.newForm">
+                  <form method="post" action="{% url 'project' %}">
+                    {% csrf_token %}
+                    <div class="todo-list-form">
+                      <input type="text" class="form-control" placeholder="Project name"
+                             name="projectName">
+                      <textarea name="projectDesc" class="form-control"
+                                placeholder="Description"></textarea>
+                      <input type="text" class="form-control" placeholder="Tags (separated by spaces)"
+                             name="projectTags">
+                      <div class="row">
+                        <label class="col-form-label ml-3">Deadline</label>
+                        <div class="togglebutton">
+                          <label>
+                            <input type="checkbox" class="form-control"
+                                   data-saction="project-list#toggleDeadline"
+                                   name="deadlineEnabled">
+                            <span class="toggle"></span>
+                          </label>
+                        </div>
+                        <input type="text" name="projectDeadline" class="form-control datepicker text-center hidden"
+                               data-target="project-list.projectDeadline">
+                      </div>
+                      <input type="submit" class="btn btn-success btn-sm"
+                             value="Create project">
+                      <button class="btn btn-outline-success btn-sm"
+                              data-saction="project-list#toggleForm">Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <div class="row" data-target="project-list.projectContainer">
+                {% for project in projects %}
+                  <div class="col-md-3">
+                    <div class="card main-card project-card">
+                      <a href="{% url 'project_view' project.id %}">
+                        <div class="card-body">
+                          <div class="card-title">{{ project.name|slice:"30" }}...</div>
+                          <div class="card-description">
+                            {{ project.description|slice:"50" }}
+                          </div>
+                          <div class="project-tags">
+                            {% for tag in project.project_tags.all %}
+                              <span class="badge badge-warning">{{ tag.name }}</span>
+                            {% endfor %}
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

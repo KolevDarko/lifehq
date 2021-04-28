@@ -1,0 +1,24 @@
+<div class="text-center">
+  <div class="card-info-stats">Resource storage used: <span
+    data-target="project.usageQuota">{{ storage_quota }}</span>/10GB
+  </div>
+</div>
+<div class="row">
+  {% for resource in resources %}
+    <div class="col-md-3 resource-card-{{ resource.id }}">
+      <div class="card main-card" data-resource-id="{{ resource.id }}">
+        <a href="{{ resource.file_url }}" target="_blank">
+          <div class="card-body card-resource">
+            <div class="card-title">{{ resource.get_title|truncatechars:20 }}</div>
+            <div class="card-description resource-card-img">
+              {{ resource.get_description|safe }}
+            </div>
+          </div>
+        </a>
+        <div class="card-footer link-text">
+          <a href="#" data-saction="project#resourceDetails">Details</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="main-panel">
+        <nav aria-label="breadcrumb" role="navigation">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'notebook-page' %}">Notebooks</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Note templates</li>
+            </ol>
+        </nav>
+        <div class="col-md-12 text-center header-underline">
+            <h2>Notes Templates</h2>
+        </div>
+        <div data-controller="note-template" data-note-template-template-id="{{ chosen_template.id }}">
+            <div class="header-list" data-target="note-template.templatesHeaderList">
+                <button class="btn btn-success header-list__add-btn intro-step-2 float-left" data-saction="click->note-template#newTemplate">
+                    <i class="material-icons">add</i>&nbsp;
+                </button>
+                <button class="btn btn-success-outline btn-scroll float-left" data-saction="click->note-template#scrollLeft">
+                    <i class="fas fa-caret-left"></i>
+                </button>
+                <button class="btn btn-success-outline btn-scroll float-right" data-saction="click->note-template#scrollRight">
+                    <i class="fas fa-caret-right"></i>
+                </button>
+                <div class="note-templates-container intro-step-1">
+                {% for a_template in note_templates %}
+                    <div class="header-list__parent" data-saction="click->note-template#selectTemplate"
+                         data-template-id="{{ a_template.id }}">
+                    {% if a_template.id == chosen_template.id %}
+                        <div class="header-list__item card header-list__item--active">
+                    {% else %}
+                        <div class="header-list__item card">
+                    {% endif %}
+                            <div class="card-body">
+                                <div class="card-title">{{ a_template.title|striptags }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+                <div class="content">
+                    {% csrf_token %}
+                    <div class="col-md-12 text-page__title header-underline">
+                      <input data-target="note-template.templateTitle" class="form-control" type="text" value="{{ chosen_template.title }}">
+                    </div>
+
+                  <form class="ays-warning">
+                  <div class="row note-editor-container">
+                    <input class="form-control" type="hidden" value="{{ chosen_template.content }}" id="noteHiddenContent"
+                           data-target="note-template.templateContent">
+                    <div class="col-md-12">
+                      <trix-editor class="trix-content" input="noteHiddenContent"></trix-editor>
+                    </div>
+                  </div>
+                  </form>
+                    <div class="col-md-12 intro-step-3">
+                        <button data-saction="note-template#saveTemplate" class="btn btn-success">Save</button>
+                        <button data-saction="note-template#deleteTemplate" class="btn btn-outline-danger">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block jsinit %}
+    <script src="{% static 'js/plugins/jquery.are-you-sure.js' %}"></script>
+    <script src="{% static 'js/trix-init.js' %}"></script>
+{% endblock %}

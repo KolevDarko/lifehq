@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+{% endblock %}
+{% block content %}
+    <div class="main-panel writing-panel" data-controller="notebook" data-notebook-notebookid="{{ notebook.id }}"
+         data-notebook-noteid="{{ the_note.id }}">
+        <div class="sidebar main-sidebar" data-color="green">
+            <a id="sidebarCollapse">
+                <i class="fa fa-bars"></i>
+            </a>
+            <div class="logo">
+                <a class="reveal-sidebar-link" data-saction="notebook#toggleNotebookSidebar"
+                   href="#"><i class="fa fa-chevron-circle-right"></i>
+                    Choose notebook
+                </a>
+                <div class="notebook-title">{{ notebook.title }}</div>
+                <div class="btn-group sidebar-actions intro-step-1">
+                    <div class="card-icon action-icon btn btn-success dropdown-toggle" data-toggle="dropdown">
+                        <i class="material-icons">add</i>New
+                    </div>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#" data-saction="notebook#blankNote">Blank</a>
+                        <a class="dropdown-item" href="#" data-toggle="modal"
+                           data-target="#chooseNotebookTemplateModal">From template</a>
+                    </div>
+                </div>
+                <a class="card-icon intro-step-2" href="{% url 'note-templates' %}" title="Note templates">
+                    <i class="fa fa-cog fa-action-button"></i>
+                </a>
+            </div>
+
+            <div class="sidebar-wrapper" id="sidebarNotes">
+                <ul class="nav" data-target="notebook.noteListContainer">
+                    {% for note in notebook.notes.all %}
+                        <li class="nav-item {% if note.id == the_note.id %} active {% endif %}">
+                            <a class="nav-link" href="#" data-saction="notebook#showNote" data-note-id="{{ note.id }}">
+                                <i class="fa fa-file"></i>
+                                <p class="wrap">
+                                    {{ note.title | striptags }}
+                                </p>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="sidebar sidebar-notebooks {% if sidebar_active %} active {% endif %}" data-color="green"
+             id="sidebarNotebooks"
+             data-target="notebook.notebookSidebar">
+            <div class="logo">
+                {% if not no_notebooks %}
+                    <a class="reveal-sidebar-link" data-saction="notebook#toggleNotebookSidebar"
+                       href="#"><i class="fa fa-chevron-circle-left"></i>
+                        Back
+                    </a>
+                {% endif %}
+                <div class="notebook-title">Notebooks</div>
+                <div class="sidebar-actions">
+                    <button class="card-icon action-icon btn btn-success" data-saction="notebook#toggleNotebookForm">
+                        <i class="material-icons">add</i> New
+                    </button>
+                </div>
+
+                <div class="hidden sidebar-form" data-target="notebook.notebookForm">
+                    <form method="post" action="{% url 'notebook-page' %}">
+                        <div class="sidebar-form__title">New notebook</div>
+                        {% csrf_token %}
+                        <input type="text" class="form-control" placeholder="Notebook title"
+                               name="notebookTitle">
+                        <input type="submit" class="btn btn-success btn-sm"
+                               value="Create">
+                        <button class="btn btn-outline-success btn-sm"
+                                data-saction="notebook#toggleNotebookForm">Cancel
+                        </button>
+                    </form>
+                </div>
+
+                <div class="hidden sidebar-form" data-target="notebook.notebookEditForm">
+                    <div class="sidebar-form__title">Edit notebook</div>
+                    {% csrf_token %}
+                    <input type="text" class="form-control" placeholder="Notebook title"
+                           name="notebookTitle" data-target="notebook.editTitle">
+                    <input type="submit" class="btn btn-success btn-sm" data-saction="notebook#updateNotebook"
+                           value="Save">
+                    <button class="btn btn-outline-success btn-sm"
+                            data-saction="notebook#hideNotebookEditForm">Cancel
+                    </button>
+                </div>
+
+            </div>
+            <div class="sidebar-wrapper">
+                <ul class="nav">
+                    {% for notebook in all_notebooks %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'notebook-page' notebook.id %}">
+                                <p class="wrap notebook-title-{{ notebook.id }}"> {{ notebook.title | striptags }}</p>
+                            </a>
+                            <div class="btn-group">
+                                <div class="dropdown-toggle dropdown-light" data-toggle="dropdown">
+                                    <i class="fa fa-ellipsis-h"></i>
+                                </div>
+                                <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-saction="notebook#editNotebook"
+                                       data-notebook-id="{{ notebook.id }}"><i class="fa fa-edit">Edit</i></a>
+                                    <a class="dropdown-item" href="#" data-saction="notebook#modalDeleteNotebook"
+                                       data-notebook-id="{{ notebook.id }}"><i class="fa fa-trash">Delete</i></a>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal fade" id="notebookDeleteModal" tabindex="-1" role="dialog"
+                 aria-labelledby="notebookDeleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Delete notebook</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                <i class="material-icons">clear</i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h5>Are you sure you want to delete this notebook with all notes inside it?
+                            </h5>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link btn-danger"
+                                    data-saction="notebook#deleteNotebook">Confirm
+                            </button>
+                            <button type="button" class="btn btn-link" data-dismiss="modal">Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="noteDeleteModal" tabindex="-1" role="dialog"
+                 aria-labelledby="noteDeleteModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Delete note</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                <i class="material-icons">clear</i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h5>Are you sure you want to delete: <span class="dialog-note-name"></span> ?
+                            </h5>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-link btn-danger"
+                                    data-saction="notebook#deleteNote">Confirm
+                            </button>
+                            <button type="button" class="btn btn-link" data-dismiss="modal">Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if no_notebooks %}
+            <div class="row">
+                    <div class="col-md-1 offset-1">
+                        <i class="fa fa-angle-double-left project-up-arrow"></i>
+                    </div>
+                    <div class="col-md-7">
+                        <h3>First create a notebook</h3>
+                    </div>
+            </div>
+        {% else %}
+          <div class="journal-header row justify-content-center">
+            <div class="journal-title col-md-12">
+              <div class="showTitle text-center" data-target="notebook.showTitleBox">
+                <span data-target="notebook.noteTitleShow">{{ the_note.title|default:'New note' }}</span>
+                <button class="btn btn-primary btn-fab btn-fab-mini btn-round" data-saction="notebook#editNoteTitle">
+                  <i class="material-icons">edit</i>
+                </button>
+              </div>
+              <div class="hidden editTitle" data-target="notebook.editTitleBox">
+                <input type="text" class="form-control" data-target="notebook.noteTitleEdit"
+                       value="{{ the_note.title|default:'New note' }}">
+                <button class="btn btn-primary btn-fab btn-fab-mini btn-round" data-saction="notebook#saveNoteTitle">
+                  <i class="material-icons">save</i>
+                </button>
+              </div>
+            </div>
+          </div>
+            <form class="ays-warning">
+            <div class="row note-editor-container">
+                <input class="form-control" type="hidden" value="{{ the_note.content }}" id="noteHiddenContent" data-target="notebook.noteContent">
+              <div class="col-md-12">
+                <trix-editor class="trix-content" input="noteHiddenContent"></trix-editor>
+              </div>
+            </div>
+            </form>
+            <div>
+                <button data-saction="notebook#saveNote" class="btn btn-success">Save</button>
+                <button data-saction="notebook#modalDeleteNote" class="btn btn-outline-danger">Delete</button>
+            </div>
+        {% endif %}
+        <div class="modal fade" aria-hidden="true" id="chooseNotebookTemplateModal"
+             data-target="notebook.templateModal">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content modal-chooser">
+                    <div class="modal-header">
+                        <h4>Choose template</h4>
+                    </div>
+                    <div class="modal-body">
+                        <ul>
+                            {% for note_template in note_templates %}
+                                <a data-saction="notebook#noteFromTemplate" data-template-id="{{ note_template.id }}">
+                                    <li class="modal-chooser__item">
+                                        {{ note_template.title }}
+                                    </li>
+                                </a>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block jsinit %}
+    <script src="{% static 'js/plugins/jquery.are-you-sure.js' %}"></script>
+    <script src="{% static 'js/trix-init.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'project' %}">Projects</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Archived lists</li>
+{% endblock %}
+{% block content %}
+    <div class="main-panel">
+        <div class="content">
+            <div class="row section-header">
+                <div class="col-md-12 text-center header-underline header-btn">
+                    <h2>TO-DOs</h2>
+                    <div class="dropdown header-btn__button">
+                      <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Archived
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="{% url 'todos' project.id %}">List view</a>
+                        <a class="dropdown-item" href="{% url 'todos-kanban' project.id %}">Kanban view</a>
+                        <a class="dropdown-item" href="{% url 'todos-archived' project.id %}">Archived</a>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row todo-list-card">
+                <div class="col-md-12">
+                    <div class="card card-container">
+                        <div class="card-header card-header-success card-header-icon">
+                        </div>
+                        <div class="card-body">
+                            <div class="todo-list-container">
+                                {% for list_struct in all_todo_lists %}
+                                    <div class="row">
+                                        <div class="card todo-list-card">
+                                            <div class="card-header todo-list-title">{{ list_struct.title }}  <span class="todo-list-title__progress">{{ list_struct.done_count }}/{{ list_struct.total_count }} Done </span></div>
+                                            <div class="card-body">
+                                                <table class="sortable todo-list-container__table">
+                                                    <tbody>
+                                                    {% for item in list_struct.todo %}
+                                                    <tr>
+                                                        <td class="form-check">
+                                                            <label class="form-check-label">
+                                                                <input class="form-check-input" type="checkbox" value=""
+                                                                       disabled>
+                                                                <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                                            </label>
+                                                        </td>
+                                                        <td class="item-text">{{ item.title }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                    {% for item in list_struct.done %}
+                                                        <tr>
+                                                            <td class="form-check">
+                                                                <label class="form-check-label">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                           value=""
+                                                                           checked disabled>
+                                                                    <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                                                </label>
+                                                            </td>
+                                                            <td class="item-text item-completed">{{ item.title }}</td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

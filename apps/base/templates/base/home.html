@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <div class="main-panel home-panel">
+    <div class="row justify-content-center">
+      <div class="col-md-4 intro-step-6">
+        <div class="card main-card mission-card">
+          <div class="card-body">
+            <a href="{% url 'master-todo' %}">
+              <div class="card-title">Work</div>
+              <div class="progress activity-card__progress-line">
+                <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ task_score }}%"
+                     aria-valuenow="{{ task_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ rev_task_score }}%"
+                     aria-valuenow="{{ rev_task_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="card-description">
+                <table class="main-card__table">
+                  <tbody>
+                  {% for item in home_tasks %}
+                    <tr class="item-table-row">
+                      <td class="form-check main-card__checkbox">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="" disabled>
+                          <span class="form-check-sign">
+                                  <span class="check"></span>
+                              </span>
+                        </label>
+                      </td>
+                      <td class="item-text"><span class="item-title">{{ item.title|slice:"40" }}...</span>
+                        {% if item.project_name %}
+                          <span class="badge badge-warning"> {{ item.project_name }}</span> {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                  {% if done_today %}
+                    <tr class="item-table-row">
+                      <td class="form-check main-card__checkbox">
+                        <label class="form-check-label">
+                          <input class="form-check-input" type="checkbox" value="" disabled checked>
+                          <span class="form-check-sign">
+                                  <span class="check"></span>
+                              </span>
+                        </label>
+                      </td>
+                      <td class="item-text item-done intro-step-7">
+                        <span class="item-title">{{ done_today.title }}</span>
+                      </td>
+                    </tr>
+                  {% endif %}
+                  </tbody>
+                </table>
+                {% if remaining_tasks > 0 %}
+                  <a href="{% url 'master-todo' %}">and {{ remaining_tasks }} more...</a>
+                {% elif total_todos > 0 %}
+                  <a href="{% url 'master-todo' %}">Just {{ total_todos }} more to go</a>
+                {% else %}
+                  <div class="text-success">
+                    <div>
+                      <i class="fas fa-check font-giant"></i>
+                    </div>
+                    <div class="font-weight-bold">Everything done for today, self high-five</div>
+                  </div>
+                {% endif %}
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card main-card mission-card habits-card intro-step-8">
+          <div class="card-body">
+            <a href="{% url 'habits-home' %}">
+              <div class="card-title">Habits</div>
+              <div class="progress activity-card__progress-line">
+                <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ habit_score }}%"
+                     aria-valuenow="{{ habit_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ rev_habit_score }}%"
+                     aria-valuenow="{{ rev_habit_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="card-description">
+                <div class="mx-auto">
+                  <div class="habits-light-container row justify-content-normal">
+                    {% if habits_are_empty %}
+                      <div class="text-center-abs">
+                        Don't neglect your habits.
+                      </div>
+                    {% endif %}
+                    {% for habit_action in habit_actions %}
+                      <div class="col-md-6 habits-light-container__text">
+                        {{ habit_action.habit_name|slice:"20" }}:
+                        {% if habit_action.status == '0' or habit_action.status == '3' %}
+                          <div title="not done" class="box habits-light-container__box-no"><i class="fas fa-times"></i>
+                          </div>
+                        {% elif habit_action.status == '1' %}
+                          <div title="done" class="box habits-light-container__box-yes"><i class="fas fa-check"></i>
+                          </div>
+                        {% elif habit_action.status == '2' %}
+                          <div title="half done" class="box habits-light-container__box-half"><span>-</span></div>
+                        {% endif %}
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-4 intro-step-9">
+        <div class="card main-card">
+          <div class="card-body">
+            <div class="card-title"><a href="{% url 'notebook-page' %} ">Notes</a></div>
+            <div class="card-description">
+              <span class="card-action-line"><a
+                href="{% url 'notebook-page' %}"> {{ total_notes }} Notes in {{ total_notebooks }} Notebooks </a></span>
+              <div class="notebook-shortcuts">
+                {% if recent_notes %}
+                  <div class="notebook-shortcuts__description text-center">Continue working on:</div>
+                {% else %}
+                  <div class="black-card-title text-center">Use our templates:</div>
+                {% endif %}
+
+                <div class="row inner-card-row">
+                  {% for note in recent_notes %}
+                    <a class="{{ recent_notes_class }}" href="{% url 'notebook-page' note.notebook_id note.id %}">
+                      <div class="inner-card-row__journal">
+                        <div class="journal-icon"><i class="fa fa-book"></i></div>
+                        <div class="journal-text">{{ note.title | striptags }}</div>
+                      </div>
+                    </a>
+                  {% empty %}
+                    <div class="col-md-4">
+                      {#                                            <div class="notebook-shortcuts__description text-center">Reading books?</div>#}
+                      <a href="{% url 'note-from-default' 0 %}">
+                        <div class="inner-card-row__journal normal-text">
+                          <div class="journal-icon"><i class="fa fa-book"></i></div>
+                          <div class="journal-text">Write a book summary</div>
+                        </div>
+                      </a>
+                    </div>
+                    <div class="col-md-4">
+                      {#                                            <div class="notebook-shortcuts__description text-center">Learning something?</div>#}
+                      <a href="{% url 'note-from-default' 1 %}">
+                        <div class="inner-card-row__journal normal-text">
+                          <div class="journal-icon"><i class="fa fa-book"></i></div>
+                          <div class="journal-text">Extract best practices</div>
+                        </div>
+                      </a>
+                    </div>
+                    <div class="col-md-4">
+                      {#                                            <div class="notebook-shortcuts__description text-center">Routine procedure?</div>#}
+                      <a href="{% url 'note-from-default' 2 %}">
+                        <div class="inner-card-row__journal normal-text">
+                          <div class="journal-icon"><i class="fa fa-book"></i></div>
+                          <div class="journal-text">Create a checklist</div>
+                        </div>
+                      </a>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 intro-step-2">
+        <div class="card main-card mission-card">
+          <div class="card-body">
+            <a href="{% url 'journal-entry' %}">
+              <div class="card-title">Journal</div>
+              <div class="progress activity-card__progress-line">
+                <div class="progress-bar progress-bar-success" role="progressbar" style="width: {{ journal_score }}%"
+                     aria-valuenow="{{ journal_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar progress-bar-danger" role="progressbar" style="width: {{ rev_journal_score }}%"
+                     aria-valuenow="{{ rev_journal_score }}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+            </a>
+            <div class="card-description">
+              <div class="justify-content-center row">
+                <div class="col-md-6 intro-step-4">
+                  <div class="home-journal__title">Write</div>
+                  {% for j_today in towrite_journals %}
+                    <div class="home-journal__entry">
+                      <a href="{% url 'journal-entry' j_today.id %}" class="font-weight-bold not-done">
+                        {% if j_today.done %}
+                          <div class="journal-icon done">{{ j_today.name }} journal <i class="fa fa-check"></i></div>
+                        {% else %}
+                          <div class="journal-icon not-done">{{ j_today.name }} journal <i class="fa fa-pen"></i></div>
+                        {% endif %}
+                      </a>
+                    </div>
+                  {% endfor %}
+                </div>
+                <div class="col-md-6 intro-step-3">
+                  <div class="home-journal__title">Review</div>
+                  {% for r_journal in review_journals %}
+                    <div class="home-journal__link-review">
+                      <a href="{% url 'journal-entry' r_journal.id %}#review">
+                        {{ r_journal.name }}
+                      </a>
+                    </div>
+                  {% empty %}
+                    <div class="home-journal__link-review">
+                      First write
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-controller="home">
+      <div class="main-section">
+        <div class="row section-header">
+          <div class="col-md-12 text-center header-underline header-btn">
+            <h2>Projects</h2>
+            <div class="dropdown header-btn__button">
+              <select data-live-search="true" class="selectpicker"
+                      data-saction="change->home#tagFilter">
+                <option value="all" selected="selected">All</option>
+                {% for tag in tags %}
+                  <option value="{{ tag }}">{{ tag }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card card-container">
+              <div class="card-header card-header-success card-header-icon">
+                <div data-saction="click->home#toggleProjectForm"
+                     class="btn btn-round btn-success action-button intro-step-5">
+                  <i class="material-icons">add</i> Add
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6 offset-md-3 hidden home-new-form"
+                       data-target="home.newProjectForm">
+                    <form method="post" action="{% url 'project' %}">
+                      {% csrf_token %}
+                      <div class="todo-list-form">
+                        <input type="text" class="form-control" placeholder="Project name"
+                               name="projectName">
+                        <textarea name="projectDesc" class="form-control"
+                                  placeholder="Description"></textarea>
+                        <input type="text" class="form-control" placeholder="Tags (separated by spaces)"
+                               name="projectTags">
+                        <div class="row">
+                          <label class="col-form-label ml-3">Deadline</label>
+                          <div class="togglebutton">
+                            <label>
+                              <input type="checkbox" class="form-control"
+                                     data-saction="home#toggleDeadline"
+                                     name="deadlineEnabled">
+                              <span class="toggle"></span>
+                            </label>
+                          </div>
+                          <input type="text" name="projectDeadline" class="form-control datepicker text-center hidden"
+                                 data-target="home.projectDeadline">
+                        </div>
+                        <input type="submit" class="btn btn-success btn-sm"
+                               value="Create project">
+                        <button class="btn btn-outline-success btn-sm"
+                                data-saction="home#toggleProjectForm">Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+                <div class="row" data-target="home.projectContainer">
+                  {% for project in projects %}
+                    <div class="col-md-3 intro-step-1">
+                      <div class="card main-card">
+                        <div class="card-body">
+                          <a href="{% url 'project_view' project.id %}">
+
+                            <div class="card-title">{{ project.name|slice:"30" }}</div>
+                            <p class="card-description">
+                              {{ project.description|slice:"50" }}
+                            </p>
+                            <div class="project-tags">
+                              {% for tag in project.project_tags.all %}
+                                <span class="badge badge-warning">{{ tag.name }}</span>
+                              {% endfor %}
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  {% empty %}
+                    <div class="col-md-1"><i class="fa fa-angle-double-up project-up-arrow"></i></div>
+                    <div class="col-md-8"><h3>Hey create a project and start moving forward</h3>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

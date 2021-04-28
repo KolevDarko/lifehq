@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Work Today</li>
+{% endblock %}
+{% block content %}
+  <div class="main-panel plan-panel">
+    <div class="content" data-controller="master-nav">
+      <div class="row section-header">
+        <div class="col-md-12 text-center header-underline">
+          <h2>Work Today</h2>
+        </div>
+      </div>
+      {% csrf_token %}
+      <ul class="nav nav-pills nav-pills-success justify-content-center mt-1 mb-4" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#" role="tablist"
+             data-target="master-nav.linkPlanWeek" data-saction="master-nav#navigateTab" data-page-type="plan-week">
+            PLAN WEEK
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#" role="tablist"
+             data-target="master-nav.linkPlan" data-saction="master-nav#navigateTab" data-page-type="plan">
+            PLAN DAY
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#" role="tablist"
+             data-target="master-nav.linkWork" data-saction="master-nav#navigateTab" data-page-type="work">
+            WORK
+          </a>
+        </li>
+        <li class="nav-item work-intro-step-6">
+          <a class="nav-link" data-toggle="tab" href="#" role="tablist"
+             data-target="master-nav.linkStats" data-saction="master-nav#navigateTab" data-page-type="stats">
+            TIME WORKED
+          </a>
+        </li>
+      </ul>
+      <div id="master-container" class="master-todo__tab-content tab-space" data-target="master-nav.container">
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block jsinit %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+{% endblock %}

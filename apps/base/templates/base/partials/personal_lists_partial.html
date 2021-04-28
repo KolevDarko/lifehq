@@ -1,0 +1,131 @@
+<div class="todo-list-container__sync-btn">Sync week planner <a href="#" data-saction="master-todo#syncWeekPlanner"><i
+  class="fa-action-button fas fa-sync"></i></a>
+</div>
+{% for list_struct in personal_lists %}
+  <div class="row personal-list-container" data-controller="master-todo-item"
+       data-master-todo-item-list-type="{{ list_struct.extras.class }}" data-master-todo-item-page-type="plan"
+          data-master-todo-item-today-date="{{ today_date|date:'SHORT_DATE_FORMAT' }}" >
+    <div class="card todo-list-flat personal-list-plan {{ list_struct.extras.class }}"
+         data-target="master-todo-item.listContainer" data-list-id="{{ list_struct.id }}">
+      <div class="card-header todo-list-title">{{ list_struct.title }}</div>
+      <div class="card-body">
+        <ul class="sortable" data-list-id="{{ list_struct.id }}">
+          {% for item in list_struct.todo %}
+            <li class="item-table-row item-{{ item.id }}" data-item-id="{{ item.id }}"
+                data-list-id="{{ list_struct.id }}" data-item-index="{{ item.personal_list_order }}"
+                data-project-id="{{ item.project_id }}" data-project-list-id="{{ item.project_list_id }}"
+                data-saction="click->master-todo-item#itemEdit">
+              <div>
+                <span class="item-title">{{ item.title }}</span> {% if item.project_name %}
+                <span class="badge badge-warning"> {{ item.project_name }}</span> {% endif %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="hidden item-form-container row"
+             data-target="master-todo-item.todoItemForm">
+          <div class="item-form">
+            <input type="hidden" value="{{ list_struct.id }}"
+                   data-target="master-todo-item.listId">
+            <input type="text" class="form-control item-input"
+                   placeholder="I need to ..."
+                   data-target="master-todo-item.itemTitle">
+            <button class="btn btn-success btn-sm item-add-button"
+                    data-saction="master-todo-item#createPlanItem">Add
+            </button>
+            <button class="btn btn-outline-success btn-sm"
+                    data-saction="master-todo-item#toggleNewItem">
+              Cancel
+            </button>
+          </div>
+        </div>
+        <div class="col-md-12 add-todo-item">
+          <button class="btn btn-success btn-round btn-sm"
+                  data-saction="master-todo-item#toggleNewItem">
+            <i class="material-icons">add</i> Add todo
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade edit-modal" data-target="master-todo-item.itemEditModal" tabindex="-1">
+      <div class="modal-dialog modal-item-edit" role="document">
+        <div class="modal-content">
+          <div class="card card-signup card-plain">
+            <div class="modal-header">
+              <div class="card-header card-header-primary text-center">
+                <h4 class="card-title">Edit Item</h4>
+              </div>
+            </div>
+            <div class="modal-body">
+              <div class="card-body">
+                <div class="form-group has-default">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            Title
+                          </span>
+                    </div>
+                    <input data-target="master-todo-item.itemEditTitle" type="text" name="itemTitle"
+                           class="form-control"
+                           value="">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                              Project
+                                            </span>
+                    </div>
+                    <select class="selectpicker" data-style="btn btn-outline-primary"
+                            data-saction="change->master-todo-item#changeItemProject"
+                            data-target="master-todo-item.itemEditSelectProject">
+                      <option value="0">None</option>
+                      {% for project in my_user.projects.all %}
+                        <option value="{{ project.id }}">{{ project.name }}</option>
+                      {% endfor %}
+                    </select>
+                    <select class="selectpicker" data-style="btn btn-outline-primary"
+                            data-target="master-todo-item.itemEditSelectTask">
+                      <option value="0">None</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group has-default">
+                  <div class="input-group">
+                          <span class="input-group-text">
+                            Description
+                          </span>
+                    <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                            data-saction="master-todo-item#showEditDescription">
+                      <i class="material-icons">edit</i>
+                    </button>
+                  </div>
+                  <div class="input-group">
+                            <textarea data-target="master-todo-item.itemEditDescription" type="text"
+                                      name="itemDescription"
+                                      class="form-control"
+                                      rows="10"></textarea>
+                    <div class="description-show" data-target="master-todo-item.itemDescriptionShow"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                Cancel
+              </button>
+              <button class="btn btn-primary"
+                      data-saction="master-todo-item#saveEditItem">Save
+              </button>
+              <button type="button" class="btn btn-danger delete-btn-corner"
+                      data-saction="master-todo-item#deleteModalItem">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}

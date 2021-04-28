@@ -1,0 +1,9 @@
+<html>
+<body>
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="key" value="{{ confirmation.key }}">
+    <input type="submit" value="Confirm your email">
+</form>
+</body>
+</html>

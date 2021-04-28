@@ -1,0 +1,27 @@
+{% extends 'base_login.html' %}
+{% load static %}
+{% block content %}
+    <div class="register-page">
+        <div class="content">
+            <div class="page-header register-page header-filter" filter-color="black"
+                 style="background-image: url('../../static/img/register.jpg'); background-size: cover; background-position: top center;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-10 ml-auto mr-auto">
+                            <div class="card card-signup">
+                                <h2 class="card-title text-center">Almost done</h2>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8 mx-auto text-center">
+                                            <h3>Email has been sent with a link that completes your registration.</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

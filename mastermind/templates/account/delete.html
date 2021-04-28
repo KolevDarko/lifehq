@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+  <h3 class="top-level__title"></h3>
+  <nav aria-label="breadcrumb" role="navigation">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Delete Account</li>
+    </ol>
+  </nav>
+  <div class="main-panel">
+    <div class="content">
+
+      <div class="row settings-section justify-content-center">
+        <div class="card col-md-10">
+          <div class="card-header card-header-text card-header-danger">
+            <div class="card-text">
+              <h4 class="card-title">Delete account</h4>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div>Completely remove your account and delete all related data.</div>
+              <div>If you're not sure or have questions about this contact us at darko@lifehqapp.com</div>
+              <div class="col-sm-8">
+                <form class="col-md-12" method="post" action="{% url 'account_delete' %}">
+                  {% csrf_token %}
+                  <input type="submit" class="btn btn-danger" value="Delete account">
+              </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

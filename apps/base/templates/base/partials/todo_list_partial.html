@@ -1,0 +1,15 @@
+{% for item in list_struct.todo %}
+    <tr data-item-id="{{ item.id }}" data-list-id="{{ list_struct.id }}">
+        <td class="sortable-icon"><i class="material-icons">reorder</i></td>
+        <td class="form-check">
+            <label class="form-check-label">
+                <input data-item-id="{{ item.id }}" data-action="todo-item#complete"
+                       class="form-check-input" type="checkbox" value="">
+                <span class="form-check-sign">
+                        <span class="check"></span>
+                    </span>
+            </label>
+        </td>
+        <td class="item-text">{{ item.title }}</td>
+    </tr>
+{% endfor %}

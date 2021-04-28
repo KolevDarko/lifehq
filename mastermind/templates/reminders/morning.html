@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+      xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <!--[if gte mso 15]>
+        <xml>
+            <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+        <![endif]-->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<h3>Hey {{ name }}, top of the morning. This is your LifeHQ Action Plan for today.</h3>
+<br>
+<div>
+    <div>
+        <ul>
+            <li>{{ journal_message }} -> <b><a href="{{ journal_link }}">Write in your journal</a></b></li>
+            <li>You have {{ important_count }} important tasks and {{ urgent_count }} urgent tasks:
+                <br>
+                <span style="font-size:18px;font-weight: bold;">Important</span>
+                <ol>
+                    {% for task in important.todo %}
+                        <li>{{ task.title }}</li>
+                    {% empty %}
+                        None
+                    {% endfor %}
+                </ol>
+                <span style="font-size:18px;font-weight: bold;">Urgent</span>
+                <ol>
+                    {% for task in urgent.todo %}
+                        <li>{{ task.title }}</li>
+                    {% empty %}
+                        None
+                    {% endfor %}
+                </ol>
+                 <b><a href="{{ todos_link }}">Start Working</a></b>
+            </li>
+            <li>You have {{ habits.count }} habits to accomplish today.
+                <ol>
+                    {% for habit in habits %}
+                        <li>{{ habit.name }}</li>
+                    {% endfor %}
+                </ol>
+                <b><a href="{{ habits_link }}">Start Doing</a></b>
+            </li>
+        </ul>
+    </div>
+
+    <p>Quote to kickstart the day:</p>
+    <p>
+        <em>You act like it's you against the world, but it's actually you against yourself.</em><br>
+    </p>
+    <p>
+        This is a morning reminder from LifeHQ because we all need a helpful nudge when starting
+        a new habit.
+    </p>
+    <p>
+        You can change when you receive this email or turn it off completely in
+        your <a href="https://app.lifehqapp.com/settings/" target="_blank">Settings</a> page.
+    </p>
+</div>
+
+</body>
+</html>

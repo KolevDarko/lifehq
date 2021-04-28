@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'project' %}">Projects</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ page.title|default:example_page_title }}</li>
+{% endblock %}
+{% block content %}
+  <div class="main-panel">
+    <div class="content-text">
+      <div data-controller="projectpage" data-projectpage-projid="{{ project.id }}"
+           data-projectpage-pageid="{{ page.id }}">
+      <div class="journal-header">
+        <div class="journal-title col-md-12">
+          <div class="showTitle text-center" data-target="projectpage.showTitleBox">
+            <span data-target="projectpage.pageTitleShow">{{ page.title|default:example_page_title }}</span>
+            <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                    data-saction="projectpage#editPageTitle">
+              <i class="material-icons">edit</i>
+            </button>
+          </div>
+          <div class="hidden editTitle row" data-target="projectpage.editTitleBox">
+            <div class="col-md-6 offset-md-2 inline">
+              <input type="text" class="form-control" data-target="projectpage.pageTitleEdit"
+                     value="{{ page.title|default:example_page_title }}">
+            </div>
+            <div class="col-md-2 inline">
+              <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                      data-saction="projectpage#savePageTitle">
+                <i class="material-icons">save</i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+          {% csrf_token %}
+
+          <div class="row note-editor-container">
+          <form class="ays-warning">
+            <input class="form-control" type="hidden" value="{{ page.content }}"
+                   id="pageHiddenContent"
+                   data-target="projectpage.pageContent">
+            <div class="col-md-12">
+              <trix-editor class="trix-content" input="pageHiddenContent"></trix-editor>
+            </div>
+          </form>
+          </div>
+
+
+          <button data-saction="projectpage#savePage" class="btn btn-success">Save</button>
+          {% if page.id %}
+            <button type="button" class="btn btn-outline-danger" data-toggle="modal"
+                    data-target="#pageDeleteModal">
+              Delete
+            </button>
+            <div class="modal fade" id="pageDeleteModal" tabindex="-1" role="dialog"
+                 aria-labelledby="pageDeleteModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h4 class="modal-title">Delete page</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                      <i class="material-icons">clear</i>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <h5>Are you sure you want to delete this page?
+                    </h5>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-link btn-danger"
+                            data-project-id="{{ project.id }}" data-page-id="{{ page.id }}"
+                            data-saction="projectpage#deletePage">Confirm
+                    </button>
+                    <button type="button" class="btn btn-link" data-dismiss="modal">Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% else %}
+            <a class="btn btn-link" href="/projects/{{ project.id }}">
+              Cancel
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block jsinit %}
+    <script src="{% static 'js/plugins/jquery.are-you-sure.js' %}"></script>
+    <script src="{% static 'js/trix-init.js' %}"></script>
+{% endblock %}

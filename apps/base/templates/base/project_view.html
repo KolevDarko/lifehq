@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'project' %}"> Projects</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ project.name }}</li>
+{% endblock %}
+{% block content %}
+  <div data-controller="project" data-project-projid="{{ project.id }}">
+    <div class="position-relative main-panel">
+      <h2 class="top-level__title"><a href="{% url 'project_view' project.id %}"
+                                      data-target="project.name">{{ project.name }}</a></h2>
+      <a class="project-settings" data-target="#projectEditModal" data-toggle="modal">
+        <i class="fa fa-cog fa-action-button"></i>
+      </a>
+    </div>
+    <div class="main-panel">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <input data-target="project.tagsContainer" type="text" id="projectTagsInput" placeholder="Add tags"
+                 value="{{ tagsJoined }}"
+                 class="tagsinput form-control" data-role="tagsinput" data-color="warning">
+        </div>
+      </div>
+      <div class="content">
+        <div class="main-section">
+          <h3 class="project-deadline intro-step-4" data-target="project.deadline">
+            {% if project.deadline %}
+              Deadline {{ project.deadline_str }}
+            {% endif %}
+          </h3>
+          <div class="row justify-content-center">
+            <div class="col-md-5 intro-step-1">
+              <div class="card main-card">
+                <a href="{% url 'todos' project.id %}">
+                  <div class="card-body card-todo">
+                    <div class="card-title">TO-DOs</div>
+                    <div class="card-description">
+                      {% for list_struct in todo_lists %}
+                        <div class="row">
+                          <div class="col-md-12">
+                            <span class="card-todo__title">{{ list_struct.title }}</span>
+                            - {{ list_struct.done_count }}/{{ list_struct.total_count }}&nbsp;Done
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <div class="col-md-5 intro-step-2">
+              <div class="card main-card">
+                <a href="{% url 'schedule' project.id %}">
+                  <div class="card-body card-schedule">
+                    <div class="card-title">Schedule</div>
+                    <div class="card-description">
+                      <div class="row">
+                        <div class="col-md-12 card-schedule__date">
+                          Upcoming events
+                        </div>
+                      </div>
+                      {% for event in events %}
+                        <div class="row">
+                          <div class="col-md-12 card-schedule__date">
+                            {{ event.start|date:'D d M h:i a' }}
+                          </div>
+                          <div class="col-md-12 card-schedule__title"> {{ event.title }}</div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="main-section intro-step-3">
+          <div class="row justify-content-center">
+            <div class="col-md-11 text-center header-underline position-relative">
+              <h2>Resources</h2>
+              <div class="dropdown header-btn__button">
+                <select data-live-search="true" class="selectpicker"
+                        data-saction="change->project#changeSort" title="Sort by">
+                  {% for sortOption in sortOptions %}
+                    <option value="{{ sortOption.0 }}">{{ sortOption.1 }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="row resources-action-buttons justify-content-center">
+            <div data-target="project.pagesControls">
+              <a href="{% url 'new-page' project.id %}">
+                <button class="btn btn-round btn-success action-button">
+                  New page
+                </button>
+              </a>
+            </div>
+            <div class="hidden text-center" data-target="project.resourcesControls">
+              <div>
+                <button class="btn btn-round btn-success action-button" value="Upload"
+                        data-saction="project#uploadFile">Upload
+                </button>
+              </div>
+              <div>
+                <form data-target="project.fileUploadForm" enctype="multipart/form-data"
+                      action="{% url 'project-resource' project.id %}" method="post">
+                  {% csrf_token %}
+                  <div class="upload-btn-wrapper">
+                    <button class="btn-upload">Choose file</button>
+                    <input id="fileUpload" type="file" name="the_file" data-saction="change->project#fileChanged"/>
+                    <div class="font-weight-bold" data-target="project.chosenFile"></div>
+                    <div class="errorText" data-target="project.uploadErrors"></div>
+                  </div>
+                </form>
+              </div>
+              <div class="hidden" data-target="project.uploadProgress">
+                <svg class="spinner" width="40px" height="40px" viewBox="0 0 66 66"
+                     xmlns="http://www.w3.org/2000/svg">
+                  <circle class="circle" fill="none" stroke-width="6" stroke-linecap="round" cx="33"
+                          cy="33"
+                          r="30"></circle>
+                </svg>
+              </div>
+              <div class="save-status hidden" data-target="project.uploadCompleted">
+                <i class="material-icons">check_circle</i>
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-center">
+            <div class="col-md-11">
+              <div class="card-container">
+                <div class="card-body pages-container">
+                  <div class="tab-buttons intro-step-3-1">
+                    <a data-target="project.pagesTab" class="active" href="#" data-saction="project#loadPages">Pages</a>
+                    <a data-target="project.uploadsTab" href="#" data-saction="project#loadResources">Uploads</a>
+                  </div>
+                  <div data-target="project.resourcesRow">
+                    <div class="row">
+                      {% for page in project.pages.all %}
+                        <div class="col-md-3">
+                          <div class="card main-card" data-resource-id="{{ page.id }}">
+                            <a href="{% url 'new-page' project.id page.id %}">
+                              <div class="card-body">
+                                <div class="card-title">{{ page.get_title }}</div>
+                                <div class="card-description">
+                                  {{ page.get_description|striptags }}
+                                </div>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade edit-modal" id="projectEditModal" tabindex="-1">
+        <div class="modal-dialog modal-login" role="document">
+          <div class="modal-content">
+            <div class="card card-signup card-plain">
+              <div class="modal-header">
+                <div class="card-header card-header-primary text-center">
+                  <h4 class="card-title">Edit Project</h4>
+                </div>
+              </div>
+              <div class="modal-body">
+                <div class="card-body">
+                  <div class="form-group has-default">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            Name
+                          </span>
+                      </div>
+                      <input data-target="project.editName" type="text" name="projectName"
+                             class="form-control"
+                             placeholder="{{ project.name }}">
+                    </div>
+                  </div>
+                  <div class="row">
+                    <label class="col-form-label ml-3">Deadline</label>
+                    <div class="togglebutton">
+                      <label>
+                        <input type="checkbox" class="form-control"
+                               data-saction="project#toggleDeadline"
+                               name="deadlineEnabled" data-target="project.editDeadlineEnabled">
+                        <span class="toggle"></span>
+                      </label>
+                    </div>
+                    <input type="text" name="projectDeadline" class="form-control datepicker hidden"
+                           placeholder="{{ project.deadline }}"
+                           data-project-deadline="{{ project.deadline_str }}"
+                           data-target="project.editDeadline">
+                  </div>
+                  {#                  <div class="form-group">#}
+                  {#                    <div class="input-group">#}
+                  {#                      <div class="input-group-prepend">#}
+                  {#                                            <span class="input-group-text">#}
+                  {#                                              Deadline#}
+                  {#                                            </span>#}
+                  {#                      </div>#}
+                  {#                      <input data-target="project.editDeadline" type="text" name="projectDeadline"#}
+                  {#                             class="form-control datepicker"#}
+                  {#                             placeholder="{{ project.deadline }}"#}
+                  {#                             data-project-deadline="{{ project.deadline_str }}">#}
+                  {#                    </div>#}
+                  {#                  </div>#}
+                </div>
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger" aria-hidden="true" data-saction="project#deleteProject">
+                  Delete project
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                  Cancel
+                </button>
+                <button class="btn btn-primary"
+                        data-saction="project#updateProject">Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade resource-modal" id="resourceModal" tabindex="-1">
+        <div class="modal-dialog modal-login" role="document">
+          <div class="modal-content">
+            <div class="card card-signup card-plain">
+              <input type="hidden" value="0" data-target="project.resId">
+              <div class="modal-header">
+                <div class="card-header card-header-primary text-center">
+                  <h4 class="card-title">Resource Details</h4>
+                </div>
+              </div>
+              <div class="modal-body">
+                <div class="card-body resource-info">
+                  <div class="resource-info__img" data-target="project.resIcon">
+                  </div>
+                  <div class="input-group">
+                      <span class="input-group-text resource-info__title" data-target="project.resName">
+                          </span>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-4">
+                        <span class="input-group-text">
+                          Uploaded:
+                        </span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="input-group-text" data-target="project.resCreatedOn">
+                                        </span>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-4">
+                        <span class="input-group-text">
+                          Size:
+                        </span>
+                    </div>
+                    <div class="col-md-8">
+                      <span class="input-group-text" data-target="project.resSize">
+                                        </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-danger" aria-hidden="true" data-saction="project#deleteResource">
+                  Delete
+                </button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                  Close
+                </button>
+                <a class="btn btn-primary" target="_blank" href="#"
+                   data-target="project.resFileUrl">View
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
+
+{% block jsinit %}
+  <script src="{% static 'js/plugins/bootstrap-tagsinput.min.js' %}"></script>
+{% endblock %}

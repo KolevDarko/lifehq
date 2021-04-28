@@ -1,0 +1,28 @@
+{% for resource in resources %}
+  <div class="col-md-3">
+    <div class="card main-card" data-resource-id="{{ resource.id }}">
+      {% if resource.get_type == 'project-page' %}
+        <a href="{% url 'new-page' project.id resource.id %}">
+          <div class="card-body">
+            <div class="card-title">{{ resource.get_title }}</div>
+            <div class="card-description">
+              {{ resource.get_description }}
+            </div>
+          </div>
+        </a>
+      {% else %}
+        <a href="{{ resource.file_url }}" target="_blank">
+          <div class="card-body card-resource">
+            <div class="card-title">{{ resource.get_title|truncatechars:20 }}</div>
+            <div class="card-description">
+              {{ resource.get_description|safe }}
+            </div>
+          </div>
+        </a>
+        <div class="card-footer link-text">
+          <a href="#" data-saction="project#resourceDetails">Details</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}

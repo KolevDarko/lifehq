@@ -1,0 +1,68 @@
+.journal-main-panel {
+    position: relative;
+    transition: 0.33s, cubic-bezier(0.685, 0.0473, 0.346, 1);
+    width: 80%;
+    float: right;
+    margin-right: 1.5%;
+}
+
+@media (max-width: 991px){
+    .journal-main-panel{
+        margin: auto;
+    }
+    .sidebar .nav .nav-link p {
+        color: white!important;
+    }
+    .sidebar .logo .notebook-title{
+        color: white;
+    }
+}
+
+.journal-main-panel .breadcrumb{
+    width: 100%;
+}
+
+.journal-main-panel > .content {
+    margin-top: 70px;
+    padding: 30px 0;
+    min-height: calc(100vh - 123px);
+}
+
+/*.showEntry {*/
+    /*border: 1px solid brown;*/
+    /*-webkit-border-radius: 5px;*/
+    /*-moz-border-radius: 5px;*/
+    /*border-radius: 5px;*/
+    /*padding: 10px;*/
+    /*margin-top: 30px;*/
+/*}*/
+.journalForm{
+     -webkit-transition: width 2s;
+    transition: width 2s;
+}
+.contentSplitView .row {
+    margin: 0px;
+}
+
+.journal-title .note-editing-area{
+    font-size: 2.3rem;
+    line-height: 1rem;
+}
+
+.journal-header{
+    border-bottom: 1px solid black;
+    padding: 10px;
+    margin: 0;
+}
+
+.journal-header .journal-title, .journal-header .journal-title input{
+    font-size: 2.5rem;
+}
+
+.journal-header .journal-title button {
+    font-size: 1rem;
+}
+
+.journal-header .journal-title div.inline{
+    display: inline-block;
+}

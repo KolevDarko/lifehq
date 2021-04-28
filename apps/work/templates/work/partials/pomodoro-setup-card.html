@@ -1,0 +1,70 @@
+<div class="card-header">Pomodoro Sessions</div>
+<div class="card-body">
+  {% if pastSessions %}
+    <div class="row">
+      <label class="col-md-4">Continue past session:</label>
+      <select class="col-md-8 form-control"
+              data-target="pomodoro-master.selectGroup">
+        <option value="0" selected="selected">Choose</option>
+        {% for session in pastSessions %}
+          <option value="{{ session.id }}">{{ session.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="row justify-content-end">
+      <input data-saction="pomodoro-master#openGroup" type="submit" class="btn btn-fill btn-primary"
+             value="Continue">
+    </div>
+  {% endif %}
+  <div class="intro-step-2">
+    <div class="todo-list-title">New Session</div>
+    <div class="row">
+      <label class="col-form-label col-md-4">Objective *</label>
+      <div class="form-group bmd-form-group col-md-7">
+        <input type="text" data-target="pomodoro-master.inputQ1" class="form-control">
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-form-label col-md-4">Number of cycles *</label>
+      <div class="form-group bmd-form-group col-md-3">
+        <input type="text" data-target="pomodoro-master.cycleCount" class="form-control">
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-form-label col-md-4">Cycle duration (min) *</label>
+      <div class="form-group bmd-form-group col-md-3">
+        <input type="text" data-target="pomodoro-master.workDuration" class="form-control">
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-form-label col-md-4">Break duration (min)*</label>
+      <div class="form-group bmd-form-group col-md-3">
+        <input type="text" data-target="pomodoro-master.breakDuration" class="form-control">
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-form-label col-md-4">Working on project: </label>
+      <div class="form-group bmd-form-group">
+        <div class="dropdown my-select">
+          <select data-live-search="true" class="selectpicker"
+                  data-target="pomodoro-master.projectSelect">
+            <option value="0" selected="selected">None</option>
+            {% for project in my_user.projects.all %}
+              <option value="{{ project.id }}">{{ project.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label class="col-form-label col-md-4">How will I know it's done?</label>
+      <div class="form-group bmd-form-group col-md-7">
+        <textarea data-target="pomodoro-master.inputQ2" class="form-control"></textarea>
+      </div>
+    </div>
+    <div class="row justify-content-end intro-step-5">
+      <input data-saction="pomodoro-master#generateCycles" type="submit" class="btn btn-fill btn-primary"
+             value="Generate">
+    </div>
+  </div>
+</div>

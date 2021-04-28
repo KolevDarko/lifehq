@@ -1,0 +1,98 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+      xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <!--[if gte mso 15]>
+        <xml>
+            <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+        <![endif]-->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  ul >li{
+    margin-bottom: 15px;
+  }
+  ol>li{
+    margin-bottom: 5px;
+  }
+</style>
+</head>
+<body>
+<h3>Hey {{ name }}, this is your evening update from LifeHQ.</h3>
+<br>
+<h3>The most important thing to do in the evening is plan for tomorrow.</h3>
+<h4>Review your daily status below and then plan your tasks here: <a href="{{ plan_link }}">Plan my moves</a> </h4>
+
+<div>
+    <div>
+        <ul>
+            {% if journal_messages_count == 1 %}
+              <li>{{ journal_messages.0 }} -> <b><a href="{{ journal_link }}">Start Writing</a></b></li>
+            {% else %}
+              <li>Journals: <br>
+                <ol>
+                  {% for message in journal_messages %}
+                    <li>{{ message }}</li>
+                  {% endfor %}
+                </ol>
+                <b><a href="{{ journal_link }}">Start Writing</a></b>
+              </li>
+            {% endif %}
+            <li>You have completed {{ important.done_count }}/{{ important.total_count }} important tasks and {{ urgent.done_count }}/{{ urgent.total_count }} urgent tasks:
+                <br>
+                <span style="font-size:15px;font-weight: bold;">Important tasks left:</span>
+                <ol>
+                    {% for task in important.todo %}
+                        <li>{{ task.title }}</li>
+                    {% empty %}
+                        None
+                    {% endfor %}
+                </ol>
+                <span style="font-size:15px;font-weight: bold;">Urgent tasks left:</span>
+                <ol>
+                    {% for task in urgent.todo %}
+                        <li>{{ task.title }}</li>
+                    {% empty %}
+                        None
+                    {% endfor %}
+                </ol>
+                 <b><a href="{{ todos_link }}">Check them off and plan the next day</a></b>
+
+            </li>
+            <li>You have completed {{ finished_habits_count }}/{{ total_habits_count }} habits today.
+                {% if finished_habits_count == total_habits_count %}
+                  All finished, Great job!
+                {% else %}
+                  <br>Remaining habits
+                  <ol>
+                    {% for habit in not_finished_habits %}
+                        <li>{{ habit.name }}</li>
+                    {% endfor %}
+                  </ol>
+                  <b><a href="{{ habits_link }}">Finish them!</a></b>
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+
+    <p>Quote of the day: br
+      <em>You act like it's you against the world, but it's actually you against yourself.</em>
+    </p>
+
+    <p>
+        This is the evening reminder from LifeHQ because we all need a helpful nudge when starting
+        new habits
+    </p>
+    <p>
+        You can change when you receive this email or turn it off completely in
+        your <a href="https://app.lifehqapp.com/settings/" target="_blank">Settings</a> page.
+    </p>
+</div>
+
+</body>
+</html>

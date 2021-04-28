@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'project' %}">Projects</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'project_view' project.id %}">{{ project.name }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Kanban View</li>{% endblock %}
+{% block content %}
+  <div class="main-panel kanban-panel" data-controller="project-kanban"
+       data-project-kanban-project-id="{{ project.id }}">
+    {% csrf_token %}
+    <div class="content">
+      <div class="row section-header">
+        <div class="col-md-12 text-center header-underline">
+          <div class="left-action float-left">
+            <a class="btn btn-round btn-success action-button" data-target="#manageKanbanModal" data-toggle="modal">
+              Add List
+            </a>
+          </div>
+          <div class="modal fade" id="manageKanbanModal" tabindex="-1">
+            <div class="modal-dialog modal-login" role="document">
+              <div class="modal-content">
+                <div class="card card-signup card-plain">
+                  <div class="modal-header">
+                    <div class="card-header card-header-primary text-center">
+                      <h4 class="card-title">New Kanban List</h4>
+                    </div>
+                  </div>
+                  <div class="modal-body p-0">
+                    <div class="card-body">
+                      <p class="text-center">Kanban lists represent tasks status</p>
+                      {% if kanban_states_num < 5 %}
+                        <div class="form-group">
+                          <input data-lists-num="{{ kanban_states_num }}" type="text" name="kanbanListName"
+                                 data-target="project-kanban.newListInput" class="form-control"
+                                 placeholder="Almost done">
+                        </div>
+                      {% else %}
+                        <div class="errorText">
+                          Limit reached for kanban lists
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="modal-footer justify-content-center">
+                    <button data-saction="project-kanban#saveNewList" class="btn btn-primary btn-wd mb-2">Add</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h2>TO-DOs</h2>
+          <div class="dropdown header-btn__button">
+            <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+              Kanban view
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="{% url 'todos' project.id %}">List view</a>
+              <a class="dropdown-item" href="{% url 'todos-kanban' project.id %}">Kanban view</a>
+              <a class="dropdown-item" href="{% url 'todos-archived' project.id %}">Archived</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        {% for list_struct in all_kanban_states %}
+          <div class="kanban-list" style="width: {{ kanban_list_width }}%" data-list-pk="{{ list_struct.extras.pk }}">
+            <div class="card kanban-board kanban-board-{{ list_struct.id }}">
+              <div class="card-header todo-list-title">
+                <div class="header-display">
+                  <span class="header-text"> {{ list_struct.title }}</span>
+                  <div class="dropdown d-inline-block edit-btn-container">
+                    <span class="edit-btn-dropdown"
+                          data-toggle="dropdown"
+                          aria-haspopup="true" aria-expanded="false">
+                      <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      <a class="dropdown-item" href="#" data-saction="project-kanban#showRenameList">Rename</a>
+                      {#                    <a class="dropdown-item" href="#" data-saction="project-kanban#deleteList">Delete</a>#}
+                    </div>
+                  </div>
+                </div>
+                <div class="header-edit hidden">
+                <span class="title-input-container">
+                  <input class="title-input form-control" type="text" value="{{ list_struct.title }}">
+                  <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                          data-saction="project-kanban#saveRename">
+                      <i class="material-icons">save</i>
+                  </button>
+                </span>
+                </div>
+              </div>
+              <div class="card-body">
+                <ul class="sortable" data-list-id="{{ list_struct.id }}">
+                  {% for item in list_struct.todo %}
+                    <li class="item-table-row item-{{ item.id }}" data-item-id="{{ item.id }}"
+                        data-list-id="{{ list_struct.id }}" data-item-index="{{ item.day_list_order }}"
+                        data-project-id="{{ item.project_id }}" data-project-list-id="{{ item.project_list_id }}"
+                        data-saction="click->project-kanban#itemEdit">
+                      <div>
+                        <span class="item-title">{{ item.title }}</span>
+                        <span class="badge badge-warning"> {{ item.list_name }}</span>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+        <div class="modal fade edit-modal" data-target="project-kanban.itemEditModal" tabindex="-1">
+          <div class="modal-dialog modal-item-edit" role="document">
+            <div class="modal-content">
+              <div class="card card-signup card-plain">
+                <div class="modal-header">
+                  <div class="card-header card-header-primary text-center">
+                    <h4 class="card-title">Edit Item</h4>
+                  </div>
+                </div>
+                <div class="modal-body">
+                  <div class="card-body">
+                    <div class="form-group has-default">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            Title
+                          </span>
+                        </div>
+                        <input data-target="project-kanban.itemEditTitle" type="text" name="itemTitle"
+                               class="form-control"
+                               value="">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">
+                              List
+                            </span>
+                        </div>
+                        <select data-style="btn btn-outline-primary"
+                                data-target="project-kanban.itemEditSelectList">
+                          {% for project_list in project.todo_lists.all %}
+                            <option value="{{ project_list.id }}">{{ project_list.title }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group has-default">
+                      <div class="input-group">
+                          <span class="input-group-text">
+                            Description
+                          </span>
+                        <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                                data-saction="project-kanban#showEditDescription">
+                          <i class="material-icons">edit</i>
+                        </button>
+                      </div>
+                      <div class="input-group">
+                            <textarea data-target="project-kanban.itemEditDescription" type="text"
+                                      name="itemDescription"
+                                      class="form-control"
+                                      rows="10"></textarea>
+                        <pre class="description-show" data-target="project-kanban.itemDescriptionShow"></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                    Cancel
+                  </button>
+                  <button class="btn btn-primary"
+                          data-saction="project-kanban#saveEditItem">Save
+                  </button>
+                  <button type="button" class="btn btn-danger delete-btn-corner"
+                          data-saction="project-kanban#deleteItem">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block jsinit %}
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+{% endblock %}

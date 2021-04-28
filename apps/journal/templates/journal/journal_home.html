@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+{% endblock %}
+{% block content %}
+
+    <div class="journal-main-panel" data-controller="journal" data-journal-entry-id="{{ the_entry.id }}">
+        <div class="sidebar main-sidebar intro-step-1" data-color="green">
+            <a id="sidebarCollapse">
+                <i class="fa fa-bars"></i>
+            </a>
+            <div class="logo">
+                <div class="notebook-title">JOURNAL</div>
+                <div class="btn-group sidebar-actions">
+                    <div class="card-icon action-icon btn btn-success dropdown-toggle" data-toggle="dropdown">
+                        <i class="material-icons">add</i>New
+                    </div>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'journal-create' 'day' %}">Day entry</a>
+                        <a class="dropdown-item" href="{% url 'journal-create' 'week' %}">Week entry</a>
+                        <a class="dropdown-item" href="{% url 'journal-create' 'month' %}">Month entry</a>
+                        <a class="dropdown-item" href="{% url 'journal-create' 'year' %}">Year entry</a>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-wrapper">
+                <ul class="nav">
+                    {% for a_entry in all_entries %}
+                        <li class="nav-item {% if a_entry.id == the_entry.id %}active{% endif %}">
+                            <a class="nav-link" href="{% url 'journal-entry' a_entry.id %}">
+                                <p> {{ a_entry.title }} <span>{% if not a_entry.done %}<i class="text-danger fas fa-asterisk"></i>{% endif %}</span>
+                                </p>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div>
+            <form class="ays-warning">
+            <div class="row journal-header">
+                <div class="btn-group">
+                    <div class="intro-step-3 card-icon journal-settings" data-toggle="dropdown">
+                        <i class="fa fa-cog fa-action-button"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="#" data-target="#scheduleModal" data-toggle="modal">Set
+                            schedule</a>
+                        <a class="dropdown-item" href="{% url 'journal-templates' journal.id %}">Manage templates</a>
+                    </div>
+                </div>
+                <div class="btn-group hidden" data-saction="click->journal#splitView" title="Single view"
+                     data-target="journal.singleBtn">
+                    <i class="material-icons align-sub fa-action-button view-button">
+                        view_day
+                    </i>
+                </div>
+                <div class="btn-group" data-saction="click->journal#splitView" title="Split view"
+                     data-target="journal.splitBtn">
+                    <i class="intro-step-2 material-icons align-sub fa-action-button view-button split-view-hint">
+                        vertical_split
+                    </i>
+                </div>
+
+                <div class="journal-title col-md-10">
+                  <div class="showTitle text-center" data-target="journal.showTitleBox">
+                    <span data-target="journal.journalTitleShow">{{ the_entry.title }}</span>
+                    <button class="btn btn-primary btn-fab btn-fab-mini btn-round" data-saction="journal#editJournalTitle">
+                      <i class="material-icons">edit</i>
+                    </button>
+                  </div>
+                  <div class="hidden editTitle row" data-target="journal.editTitleBox">
+                    <div class="col-md-6 offset-md-2 inline">
+                    <input type="text" class="form-control" data-target="journal.journalTitleEdit"
+                           value="{{ the_entry.title}}">
+                      </div>
+                    <div class="col-md-2 inline">
+                    <button class="btn btn-primary btn-fab btn-fab-mini btn-round" data-saction="journal#saveJournalTitle">
+                      <i class="material-icons">save</i>
+                    </button>
+                      </div>
+                  </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-6 col-md-6 hidden" data-target="journal.showEntryContainer">
+                    <div class="card">
+                        <div class="card-header card-header-tabs card-header-primary text-center row">
+                            <div class="nav-tabs-title col-md-4 text-right">Review:</div>
+                            <div class="nav-tabs-navigation col-md-8 journal-nav-tabs">
+                                <div class="nav-tabs-wrapper">
+                                    <ul class="nav nav-tabs" data-tabs="tabs" data-target="journal.latestEntry"
+                                        data-review-id="{{ last_id }}">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#" data-saction="click->journal#showPrev">
+                                                <i class="material-icons">chevron_left</i>
+                                                <div class="ripple-container"></div>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <span class="nav-link active" data-target="journal.showEntryTitle">
+                                                {{ review_entry.title | safe }}
+                                            </span>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="#" data-saction="click->journal#showNext">
+                                                <i class="material-icons">chevron_right</i>
+                                                <div class="ripple-container"></div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body viewer" data-target="journal.showEntry">
+                            {{ review_entry.content | safe }}
+                        </div>
+                    </div>
+                </div>
+                <div class="journalForm col-md-12" data-target="journal.journalForm">
+                    {% csrf_token %}
+                  <div class="row note-editor-container">
+
+                    <input class="form-control" type="hidden" value="{{ the_entry.content }}"
+                           id="journalHiddenContent"
+                           data-target="journal.theEntryContent">
+
+                    <div class="col-md-12">
+                      <trix-editor class="trix-content" input="journalHiddenContent"></trix-editor>
+                    </div>
+                  </div>
+
+                    <div class="row">
+                        <button class="btn btn-primary ml-5" data-saction="journal#saveJournal">Save</button>
+                        <div class="hidden" data-target="journal.saveProgress">
+                            <svg class="spinner" width="50px" height="50px" viewBox="0 0 66 66"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <circle class="circle" fill="none" stroke-width="6" stroke-linecap="round" cx="33"
+                                        cy="33"
+                                        r="30"></circle>
+                            </svg>
+                        </div>
+                        <button data-saction="journal#modalDeleteJournal" class="btn btn-outline-danger ml-1">Delete
+                        </button>
+                    </div>
+                  <div>
+                    <div class="hidden" data-target="journal.autoSaveInfo">Test</div>
+                  </div>
+                </div>
+            </div>
+            </form>
+        </div>
+        <div class="modal fade" id="scheduleModal" tabindex="-1">
+            <div class="modal-dialog modal-login" role="document">
+                <div class="modal-content">
+                    <div class="card card-signup card-plain">
+                        <div class="modal-header">
+                            <div class="card-header card-header-primary text-center">
+                                <h4 class="card-title">Journal Schedule</h4>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <div class="card-body">
+                                <p class="text-center">Have journals automatically generated for you</p>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="checkbox"
+                                               data-target="journal.day"
+                                               name="day" {{ journal.day|yesno:"checked," }}>
+                                        <span class="form-check-sign">
+                                                      <span class="check"></span>
+                                                  </span>
+                                        Daily - every day
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="checkbox"
+                                               data-target="journal.week"
+                                               name="week" {{ journal.week|yesno:"checked," }}>
+                                        <span class="form-check-sign">
+                                                      <span class="check"></span>
+                                                  </span>
+                                        Weekly - every Sunday
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="checkbox"
+                                               data-target="journal.month"
+                                               name="month" {{ journal.month|yesno:"checked," }}>
+                                        <span class="form-check-sign">
+                                                      <span class="check"></span>
+                                                  </span>
+                                        Monthly - 1st day of every month
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input class="form-check-input" type="checkbox"
+                                               data-target="journal.year"
+                                               name="year" {{ journal.year|yesno:"checked," }}>
+                                        <span class="form-check-sign">
+                                                      <span class="check"></span>
+                                                  </span>
+                                        Year - Jan 1st day of every year
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-center">
+                            <button data-journal-id="{{ journal.id }}"
+                                    class="btn btn-primary btn-link btn-wd btn-lg"
+                                    data-saction="journal#saveSchedule">Save
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="journalDeleteModal" tabindex="-1" role="dialog"
+             aria-labelledby="journalDeleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Delete journal</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <i class="material-icons">clear</i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>Are you sure you want to delete: <span class="dialog-note-name"></span> ?
+                        </h5>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link btn-danger"
+                                data-saction="journal#deleteJournal">Confirm
+                        </button>
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block jsinit %}
+    <script src="{% static 'js/plugins/jquery.are-you-sure.js' %}"></script>
+    <script src="{% static 'js/trix-init.js' %}"></script>
+{% endblock %}

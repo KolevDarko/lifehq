@@ -1,0 +1,337 @@
+<div class="row justify-content-center active" id="linkWork" data-controller="pomodoro-master"
+     data-target="allfather.pomCtrl">
+  <div class="todo-list-container col-md-5 intro-step-1">
+    <div class="above-work-filter-description">Filter by project:</div>
+    <div class="dropdown header-btn__button abovecard-work-filter">
+      <select class="selectpicker"
+              data-saction="change->master-nav#filterProject" data-target="master-nav.filterProjectSelect">
+        <option value="all" selected="selected">All</option>
+        {% for project in my_user.projects.all %}
+          <option value="{{ project.id }}">{{ project.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <input type="hidden" id="workSelectedProject" value="all">
+    {% for list_struct in personal_lists %}
+      <div class="row work-list-parent" data-controller="master-todo-item"
+           data-master-todo-item-list-type="{{ list_struct.extras.class }}" data-master-todo-item-page-type="work"
+        data-master-todo-item-today-date="{{ today_date|date:'SHORT_DATE_FORMAT' }}" >
+        <div class="card todo-list-flat personal-list-do {{ list_struct.extras.class }}"
+             data-target="master-todo-item.listContainer">
+          <div class="card-header todo-list-title">{{ list_struct.title }}</div>
+          <div class="card-body">
+
+            <ul class="sortable work-list" data-list-id="{{ list_struct.id }}">
+              {% for item in list_struct.todo %}
+                <div class="item-container" data-item-id="{{ item.id }}">
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input data-item-id="{{ item.id }}"
+                             data-saction="master-todo-item#complete"
+                             class="form-check-input" type="checkbox"
+                             value="">
+                      <span class="form-check-sign">
+                          <span class="check"></span>
+                      </span>
+                    </label>
+                  </div>
+                  <li class="item-table-row item-{{ item.id }}" data-item-id="{{ item.id }}"
+                      data-list-id="{{ list_struct.id }}" data-item-index="{{ item.personal_list_order }}"
+                      data-project-id="{{ item.project_id }}" data-project-list-id="{{ item.project_list_id }}"
+                      data-due-date="{{ item.due_date|date:'SHORT_DATE_FORMAT' }}">
+                    <div class="item-text">
+                      <span class="item-title">{{ item.title }}</span> {% if item.project_name %}
+                      <span class="badge badge-warning item-project"> {{ item.project_name }}</span> {% endif %}
+                    </div>
+                    <div class="item-actions">
+                      <span class="clickable action-play text-success" data-saction="click->pomodoro-master#pickTask">
+                        <i class="fas fa-play-circle"></i>
+                      </span>
+                      <span class="clickable" data-saction="click->master-todo-item#itemEdit">
+                        <i class="fas fa-edit"></i>
+                      </span>
+                    </div>
+                  </li>
+                </div>
+              {% endfor %}
+            </ul>
+
+            <div class="hidden item-form-container"
+                 data-target="master-todo-item.todoItemForm">
+              <div class="form-check">
+                <label class="form-check-label">
+                  <input class="form-check-input" type="checkbox" value="" disabled>
+                  <span class="form-check-sign">
+                        <span class="check"></span>
+                    </span>
+                </label>
+              </div>
+              <div class="col-md-10 item-form">
+                <input type="hidden" value="{{ list_struct.id }}"
+                       data-target="master-todo-item.listId">
+                <input type="text" class="form-control item-input"
+                       placeholder="I need to ..."
+                       data-target="master-todo-item.itemTitle">
+                <button class="btn btn-success btn-sm item-add-button"
+                        data-saction="master-todo-item#createWorkItem">Add
+                </button>
+                <button class="btn btn-outline-success btn-sm"
+                        data-saction="master-todo-item#toggleNewItem">
+                  Cancel
+                </button>
+              </div>
+            </div>
+            <div class="col-md-12 add-todo-item">
+              <button class="btn btn-success btn-round btn-sm"
+                      data-saction="master-todo-item#toggleNewItem">
+                <i class="material-icons">add</i> Add todo
+              </button>
+            </div>
+            <div class="todo-list-title">Done</div>
+            <ul class="sortable table-completed done-list">
+              {% for item in list_struct.done %}
+                <div class="item-container" data-item-id="{{ item.id }}">
+                  <div class="form-check">
+                    <label class="form-check-label">
+                      <input data-item-id="{{ item.id }}"
+                             data-saction="master-todo-item#complete"
+                             class="form-check-input" type="checkbox"
+                             value="" checked>
+                      <span class="form-check-sign">
+                        <span class="check"></span>
+                    </span>
+                    </label>
+                  </div>
+                  <li class="item-table-row item-{{ item.id }}" data-item-id="{{ item.id }}"
+                      data-list-id="{{ list_struct.id }}" data-item-index="{{ item.personal_list_order }}"
+                      data-project-id="{{ item.project_id }}" data-project-list-id="{{ item.project_list_id }}"
+                      data-due-date="{{ item.due_date|date:'SHORT_DATE_FORMAT' }}"
+                      data-saction="click->master-todo-item#itemEdit">
+                    <div>
+                      <span class="item-title">{{ item.title }}</span> {% if item.project_name %}
+                      <span class="badge badge-warning"> {{ item.project_name }}</span> {% endif %}
+                    </div>
+                  </li>
+                </div>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div class="modal fade edit-modal" data-target="master-todo-item.itemEditModal">
+          <div class="modal-dialog modal-item-edit" role="document">
+            <div class="modal-content">
+              <div class="card card-signup card-plain">
+                <div class="modal-header">
+                  <div class="card-header card-header-primary text-center">
+                    <h4 class="card-title">Edit Item</h4>
+                  </div>
+                </div>
+                <div class="modal-body">
+                  <div class="card-body">
+                    <div class="form-group has-default">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text">
+                            Title
+                          </span>
+                        </div>
+                        <input data-target="master-todo-item.itemEditTitle" type="text" name="itemTitle"
+                               class="form-control"
+                               value="">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                              Project
+                                            </span>
+                        </div>
+                        <select class="inline-select"
+                                data-saction="change->master-todo-item#changeItemProject"
+                                data-target="master-todo-item.itemEditSelectProject">
+                          <option value="0">None</option>
+                          {% for project in my_user.projects.all %}
+                            <option value="{{ project.id }}">{{ project.name }}</option>
+                          {% endfor %}
+                        </select>
+                        <select class="inline-select"
+                                data-target="master-todo-item.itemEditSelectTask">
+                          <option value="0">None</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                              Scheduled for:
+                                            </span>
+                        </div>
+                        <input type="text" data-target="master-todo-item.itemDueDate"
+                               class="form-control col-2 due-datepicker" placeholder="None">
+                        <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                                data-saction="master-todo-item#showDatepicker">
+                          <i class="material-icons">calendar_today</i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="form-group has-default">
+                      <div class="input-group">
+                          <span class="input-group-text">
+                            Description
+                          </span>
+                        <button class="btn btn-primary btn-fab btn-fab-mini btn-round"
+                                data-saction="master-todo-item#showEditDescription">
+                          <i class="material-icons">edit</i>
+                        </button>
+                      </div>
+                      <div class="input-group">
+                            <textarea data-target="master-todo-item.itemEditDescription" type="text"
+                                      name="itemDescription"
+                                      class="form-control"
+                                      rows="10"></textarea>
+                        <div class="description-show" data-target="master-todo-item.itemDescriptionShow"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-hidden="true">
+                    Cancel
+                  </button>
+                  <button class="btn btn-primary"
+                          data-saction="master-todo-item#saveEditItem">Save
+                  </button>
+                  <button type="button" class="btn btn-danger delete-btn-corner"
+                          data-saction="master-todo-item#deleteModalItem">
+                    Remove
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="col-md-6 intro-step-2">
+      <ul class="nav-above-card nav nav-pills nav-pills-warning nav-pills-icons justify-content-start" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active show" data-toggle="tab" href="#timerLink" role="tablist">
+            Timer
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#pomodoroLink" role="tablist">
+            Pomodoro
+          </a>
+        </li>
+      </ul>
+      <div class="tab-content tab-space">
+        <div class="tab-pane active show" id="timerLink">
+          <div class="card pomodoro-generate-card mt-0">
+            <div class="card-header">Track time</div>
+            <div class="card-body">
+              <div class="todo-list-title">Worked today: <span class="black-text"
+                                                               data-target="pomodoro-master.timerTaskWorked"></span>
+              </div>
+              <span id="pick-task-info"> (Pick task on the right) </span>
+              <span class="text-success"></span>
+              <div class="todo-list-title">Project: <span class="black-text"
+                                                          data-target="pomodoro-master.timerProjectTitle"></span></div>
+              <div class="todo-list-title">Task: <span class="black-text"
+                                                       data-target="pomodoro-master.timerTaskTitle"></span></div>
+              <div data-target="pomodoro-master.timerTaskDescription"></div>
+              <div class="row">
+                <button data-saction="allfather#taskStartTimer" class="start-timer-btn btn btn-fill btn-success"><i
+                  class="fas fa-play"></i> Start timer
+                </button>
+
+                <button data-saction="allfather#stopTimer" class="stop-timer-btn btn btn-fill btn-danger hidden"><i
+                  class="fas fa-stop"></i> Stop timer
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane" id="pomodoroLink">
+          <div class="todo-list-container card pomodoro-generate-card intro-step-1 mt-0 col-md-12"
+               id="pomodoroCyclesContainer">
+            <div class="card-header">Pomodoro Sessions</div>
+            <div class="card-body">
+              {% if pastSessions %}
+                <div class="row">
+                  <label class="col-md-4">Continue past session:</label>
+                  <select class="col-md-8 form-control"
+                          data-target="pomodoro-master.selectGroup">
+                    <option value="0" selected="selected">Choose</option>
+                    {% for session in pastSessions %}
+                      <option value="{{ session.id }}">{{ session.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="row justify-content-end">
+                  <input data-saction="pomodoro-master#openGroup" type="submit" class="btn btn-fill btn-primary"
+                         value="Continue">
+                </div>
+              {% endif %}
+              <div class="intro-step-2">
+                <div class="todo-list-title">New Session</div>
+                <div class="row">
+                  <label class="col-form-label col-md-4">Objective *</label>
+                  <div class="form-group bmd-form-group col-md-7">
+                    <input type="text" data-target="pomodoro-master.inputQ1" class="form-control">
+                  </div>
+                </div>
+                <div class="row">
+                  <label class="col-form-label col-md-4">Number of cycles *</label>
+                  <div class="form-group bmd-form-group col-md-3">
+                    <input type="text" data-target="pomodoro-master.cycleCount" class="form-control">
+                  </div>
+                </div>
+                <div class="row">
+                  <label class="col-form-label col-md-4">Cycle duration (min) *</label>
+                  <div class="form-group bmd-form-group col-md-3">
+                    <input type="text" data-target="pomodoro-master.workDuration" class="form-control">
+                  </div>
+                </div>
+                <div class="row">
+                  <label class="col-form-label col-md-4">Break duration (min)*</label>
+                  <div class="form-group bmd-form-group col-md-3">
+                    <input type="text" data-target="pomodoro-master.breakDuration" class="form-control">
+                  </div>
+                </div>
+
+                <div class="row">
+                  <label class="col-form-label col-md-4">Working on project: </label>
+                  <div class="form-group bmd-form-group">
+                    <div class="dropdown my-select">
+                      <select data-live-search="true" class="selectpicker"
+                              data-target="pomodoro-master.projectSelect">
+                        <option value="0" selected="selected">None</option>
+                        {% for project in my_user.projects.all %}
+                          <option value="{{ project.id }}">{{ project.name }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <label class="col-form-label col-md-4">How will I know it's done?</label>
+                  <div class="form-group bmd-form-group col-md-7">
+                    <textarea data-target="pomodoro-master.inputQ2" class="form-control"></textarea>
+                  </div>
+                </div>
+                <div class="row justify-content-end intro-step-5">
+                  <input data-saction="pomodoro-master#generateCycles" type="submit" class="btn btn-fill btn-primary"
+                         value="Generate">
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+{% for page in pages %}
+  <div class="col-md-3">
+    <div class="card main-card" data-resource-id="{{ page.id }}">
+      <a href="{% url 'new-page' project.id page.id %}">
+        <div class="card-body">
+          <div class="card-title">{{ page.get_title }}</div>
+          <div class="card-description">
+            {{ page.get_description }}
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+{% endfor %}

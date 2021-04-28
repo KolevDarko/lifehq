@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Habits</li>
+{% endblock %}
+{% block content %}
+  <div class="main-panel">
+    <div class="content">
+      <div class="row section-header">
+        <div class="col-md-12 text-center">
+          <h2>Consistency chain</h2>
+        </div>
+      </div>
+      <div class="row scrollable" data-controller="habit-parent">
+        <table class="table habits-table col-md-12 intro-step-1">
+          <thead>
+          <tr>
+            <th>Habit</th>
+            {% for day in day_data %}
+              <th>
+                <span class="day-name">{{ day.name }}</span>
+                <span class="day-date">({{ day.shortDate }})</span>
+              </th>
+            {% endfor %}
+          </tr>
+          </thead>
+          <tbody data-target="habit-parent.container" class="habit-full-container">
+          {% for h_struct in habit_structs %}
+            <tr data-controller="habit-change"
+                data-habit-change-habit-id="{{ h_struct.habit.id }}" data-habit-change-schedule="{{ h_struct.habit.schedule }}" class="habit-row habit-{{ h_struct.habit.id }}">
+              <td>
+                <div class="habit-name habit-name-{{ h_struct.habit.id }}
+                                        {% if h_struct.name_len > 20 %}
+                                          habit-name-long
+                                        {% else %}
+                                          habit-name-short
+                                        {% endif %}
+                                      "
+                     data-target="habit-change.habitName">{{ h_struct.habit.name }}</div>
+              </td>
+              {% for h_action in h_struct.action_list %}
+                {% if not h_action %}
+                  <td class="habit-status box-{{ forloop.counter }}"></td>
+                {% else %}
+                  {% if h_action.action_date == today %}
+                    <td class="habit-status box-{{ forloop.counter }} today intro-step-2">
+                      {% else %}
+                    <td class="habit-status box-{{ forloop.counter }}">
+                  {% endif %}
+                <div data-controller="habit-action" data-target="habit-action.box"
+                     data-habit-action-status="{{ h_action.status }}"
+                     data-habit-action-id="{{ h_action.id }}"
+                     data-saction="click->habit-action#switch"></div>
+                </td>
+                {% endif %}
+
+              {% endfor %}
+              <td class="td-actions text-right">
+                <button data-saction="habit-change#showEditHabit" title="edit" type="button"
+                        rel="tooltip" class="btn btn-success">
+                  <i class="material-icons">edit</i>
+                </button>
+                <button data-saction="habit-change#showArchiveHabit" title="archive" type="button"
+                        rel="tooltip" class="btn btn-danger">
+                  <i class="material-icons">close</i>
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+          <tr data-target="habit-parent.actionRow">
+            <td class="text-center">
+              <button class="btn btn-round btn-success"
+                      data-toggle="modal" data-saction="habit-parent#showNewHabit">
+                New habit
+              </button>
+            </td>
+            <td class="habit-status" colspan="8"></td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="modal fade" id="newHabitModal" data-target="habit-parent.habitModal" tabindex="-1">
+          <div class="modal-dialog modal-login" role="document">
+            <div class="modal-content">
+              <div class="card card-signup card-plain">
+                <div class="modal-header">
+                  <div class="card-header card-header-primary text-center">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                      <i class="material-icons">clear</i>
+                    </button>
+                    <h4 class="card-title">New Habit</h4>
+                  </div>
+                </div>
+                <div class="modal-body">
+                  {% csrf_token %}
+                  <div class="card-body">
+                    <div class="text-center text-danger" data-target="habit-parent.habitError"></div>
+                    <div class="form-group bmd-form-group">
+                      <div class="input-group">
+                        <input type="text" data-target="habit-parent.newHabitTitle"
+                               class="form-control" placeholder="Habit Name..." id="habitTitle">
+                        <input type="hidden" id="editHabitId" value=""
+                           data-target="habit-parent.editHabitId">
+                      </div>
+                    </div>
+                    <div>Schedule</div>
+                    <div class="row habit-schedule">
+                      {% for day in schedule_days %}
+                        <div class="col-3">
+                          <div class="label">{{ day }}</div>
+                          <div class="form-check">
+                            <label class="form-check-label">
+                              <input class="form-check-input check-{{ forloop.counter0 }}" type="checkbox"
+                                     data-target="habit-parent.schedule" value="1" checked>
+                              <span class="form-check-sign">
+                                  <span class="check"></span>
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                  <a href="#" data-saction="habit-parent#createHabit"
+                     class="btn btn-success">Create</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+{#        <div id="editHabitModal" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"#}
+{#             aria-hidden="true">#}
+{#          <div class="modal-dialog modal-sm">#}
+{#            <div class="modal-content">#}
+{#              <div class="card card-signup card-plain">#}
+{#                <div class="card-header card-header-info">#}
+{#                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">#}
+{#                    <i class="material-icons">clear</i>#}
+{#                  </button>#}
+{#                  <h4 class="card-title">Edit Habit</h4>#}
+{#                </div>#}
+{#                <div class="modal-body">#}
+{#                  <div class="card-body">#}
+{#                    <div class="form-group bmd-form-group">#}
+{#                      <div class="input-group">#}
+{#                        <input data-target="habit-parent.editHabitName" id="editHabitInput"#}
+{#                               type="text" class="form-control" placeholder="Name">#}
+{#                      </div>#}
+{#                    </div>#}
+{#                    <input type="hidden" id="editHabitId" value=""#}
+{#                           data-target="habit-parent.editHabitId">#}
+{#                  </div>#}
+{#                </div>#}
+{#                <div class="modal-footer justify-content-center">#}
+{#                  <a href="#" data-saction="habit-parent#saveHabitName"#}
+{#                     class="btn btn-success">Save</a>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </div>#}
+{#        </div>#}
+
+        <div class="modal fade" id="archiveHabitModal" tabindex="-1" role="dialog" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">Archive habit</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                  <i class="material-icons">clear</i>
+                </button>
+              </div>
+              <div class="modal-body">
+                <h5 id="archiveHabitTitle"></h5>
+                <input type="hidden" value="" data-target="habit-parent.archiveHabitId"
+                       id="archiveHabitId">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-link btn-danger"
+                        data-saction="habit-parent#archiveHabit">Archive
+                </button>
+                <button type="button" class="btn btn-link" data-dismiss="modal">Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row section-header">
+        <div class="col-md-12 text-center">
+          <h2>Success chart</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 offset-md-2"><span class="stats-title">Week Average</span>: <span
+          class="stats-figure">{{ week_score|floatformat:1 }}%</span>
+        </div>
+        <div class="col-md-6 offset-md-2"><span class="stats-title">Today</span>: <span
+          class="stats-figure">{{ today_score|floatformat:1 }}%</span>
+        </div>
+        <div class="col-md-10 offset-md-2 intro-step-4 habit_advice {{ advice_class }}"><span
+          class="stats-title">Advice</span>: {{ habit_advice }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-8 m-auto">
+          <div class="habits-stats intro-step-3">
+            {% for stat in stats.values %}
+              <div class="vertical-bar chart-bar-{{ forloop.counter }}"
+                   style="height:{{ stat.height }}px;background-color:{{ stat.color }};left:{{ stat.left }}">
+              </div>
+              <div class="bar-day" style="left:{{ stat.left }}">{{ stat.day }}</div>
+              <div class="bar-percent bar-percent-{{ forloop.counter }}"
+                   style="left:{{ stat.left }};bottom:{{ stat.score_height }}">{{ stat.score }}%
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block base-css %}
+  <link rel="stylesheet" href="{% static 'css/theme-serpent.css' %}">
+  <link rel="stylesheet" href="{% static 'css/material-dashboard.css' %}">
+{% endblock %}
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Billing</li>
+{% endblock %}
+{% block content %}
+  <div>
+    <div class="content billing-area">
+      <div class="container">
+        <div class="row text-center">
+          <div class="col-md-12 mb-5">
+            <h2 class="text--primary">LifeHQ has one plan, the Master Plan, <span class="font-weight-bold">all-inclusive.</span>
+            </h2>
+            <h3 class="{{ status_class }}">{{ plan_status }}</h3>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="pricing pricing-1 boxed boxed--lg boxed--border">
+              <h3>The Master plan</h3>
+              <span class="h2">
+                                    <strong>$5.99/month</strong>
+                                </span>
+              <div class="lead">billed monthly</div>
+              <div class="lead">Less than 20 cents / day</div>
+              <hr>
+              <h3 class="lead-primary">Organization</h3>
+              <hr>
+              <ul>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Projects</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Todo lists</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Scheduling</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">10GB file uploads</span>
+                </li>
+              </ul>
+              <h3 class="lead-primary">Productivity</h3>
+              <hr>
+              <ul>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Master list</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Advanced Pomodoro</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Daily mission tracker</span>
+                </li>
+              </ul>
+              <h3 class="lead-primary">Consistency</h3>
+              <hr>
+              <ul>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Four Journal types</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Habit tracking</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Email reminders</span>
+                </li>
+              </ul>
+              <a href="#" class="paddle_button btn btn--primary" data-email="{{ request.user.email }}"
+                 data-product={{ month_plan_id }} data-success="/billing-status/"
+                 data-passthrough="{{ request.user.account.profile.id }}">I commit my success</a>
+            </div>
+            <!--end of pricing-->
+          </div>
+          <div class="col-md-4">
+            <div class="pricing pricing-1 boxed boxed--lg boxed--border">
+              <h3>The Master Plan</h3>
+              <span class="h2">
+                  <strong>$4.99/month</strong>
+              </span>
+              <div class="lead">billed annually</div>
+              <div class="lead">Less than 17 cents / day</div>
+              <span class="label">Best value</span>
+              <hr>
+              <h3 class="lead-primary">Organization</h3>
+              <hr>
+              <ul>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Projects</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Todo lists</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Scheduling</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">10GB file uploads</span>
+                </li>
+              </ul>
+              <h3 class="lead-primary">Productivity</h3>
+              <hr>
+              <ul>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Master list</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Advanced Pomodoro</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Daily mission tracker</span>
+                </li>
+              </ul>
+              <h3 class="lead-primary">Consistency</h3>
+              <hr>
+              <ul>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Four Journal types</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Habit tracking</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--success"></span>
+                  <span class="lead">Email reminders</span>
+                </li>
+              </ul>
+            <a href="#" class="paddle_button btn btn--primary" data-email="{{ request.user.email }}"
+               data-product={{ year_plan_id }} data-success="/billing-status/"
+               data-passthrough="{{ request.user.account.profile.id }}">I commit to my success</a>
+
+            </div>
+            <!--end of pricing-->
+          </div>
+          <div class="col-md-4">
+            <div class="pricing pricing-1 boxed boxed--lg boxed--border">
+              <h3>Business</h3>
+              <span>Are you in the productivity space and want to offer something custom and amazing to your community?</span>
+              <hr>
+              <ul>
+                <li>
+                  <span class="checkmark bg--primary-1"></span>
+                  <span>Everything from Master plan</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--primary-1"></span>
+                  <span>Custom projects</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--primary-1"></span>
+                  <span>Custom branding</span>
+                </li>
+                <li>
+                  <span class="checkmark bg--primary-1"></span>
+                  <span>Custom resources</span>
+                </li>
+              </ul>
+              <a class="btn btn--primary font-weight-bold" href="mailto:darko@lifehqapp.com">
+                Let's talk
+              </a>
+            </div>
+            <!--end of pricing-->
+          </div>
+        </div>
+        <!--end of row-->
+      </div>
+    </div>
+    <div class="mt--3">&nbsp;</div>
+  </div>
+
+{% endblock %}
+{% block jsinit %}
+  <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+  <script type="text/javascript">
+    Paddle.Setup({vendor: 39342});
+  </script>
+{% endblock %}
